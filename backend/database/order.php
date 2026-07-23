@@ -59,4 +59,16 @@ $allMigrations = [
 
         // SEEDS
     ],
+
+    'builders' => [
+        // MIGRATION
+
+        '/builders/site_urls.sql'        => 'table',
+        '/builders/site_settings.sql'    => 'table',
+        '/builders/builder_forms.sql'    => 'table',
+        '/builders/builder_sections.sql' => 'table',
+        '/builders/builder_pages.sql'    => 'table',
+
+        // SEEDS
+    ],
 ];

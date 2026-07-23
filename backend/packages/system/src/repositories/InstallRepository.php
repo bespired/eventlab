@@ -133,6 +133,7 @@ class InstallRepository
                             continue;
                         }
                         $sql = file_get_contents($file);
+
                         if ($sql) {
                             $sql = $this->installUnroll($sql);
 
