@@ -1,0 +1,15 @@
+INSTALL CONTACTS
+
+see install-backend.txt to setup server
+is docker running?
+
+edit ~/Projects/eventlab/backend/config/contacts.json to your needs.
+> cd ~/Projects/eventlab/backend
+> php run.php contacts
+
+
+Contact json uses field declarations from
+~/Projects/eventlab/backend/database/seeds/attributes.sql
+
+Entries of type system and prospect like avatarname and username are constructed from rules.
+Entries of type prospect are copied to the prospect.

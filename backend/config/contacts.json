@@ -1,0 +1,28 @@
+{
+    "package": "prospect",
+    "controller": "contact",
+    "action": "import",
+    "token": "at-1wm8or-8BMg0-1wm8aj-wGchx",
+    "tenant":"a0",
+
+    "prospects":  {
+        "contacts":[
+            {
+                "email": "admin@bespired.nl",
+                "firstname": "Joeri",
+                "lastname": "Kassenaar",
+                "newsletter": false,
+                "marketing": "opt-out::2026-01-01"
+            }, {
+                "email": "joeri@bespired.nl",
+                "firstname": "Joeri",
+                "lastname": "Kassenaar",
+                "newsletter": "true::2026-01-01",
+                "marketing":  "opt-in::2026-01-01"
+            }
+        ]
+    }
+
+}
+
+

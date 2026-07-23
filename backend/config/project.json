@@ -1,0 +1,23 @@
+{
+    "package": "system",
+    "controller": "install",
+    "action": "migrate",
+    "secret": "eventlab_install",
+    "projects": [
+        {
+            "clientname": "Centagon",
+            "projectname": "Eventlab",
+            "custom_domain": "eventlab.com",
+            "fallback_slug": "",
+            "tenant": "b1",
+
+            "admins": [
+            {
+                "email": "admin@bespired.nl",
+                "firstname": "Joeri",
+                "lastname": "Kassenaar",
+            }]
+        }
+
+    ]
+}

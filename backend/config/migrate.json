@@ -1,0 +1,14 @@
+{
+    "package": "system",
+    "controller": "install",
+    "action": "migrate",
+    "secret": "eventlab_install",
+    "dropall": false,
+    "projects": [
+        {
+            "tenant": "a0"
+        }, {
+            "tenant": "c3"
+        }
+    ]
+}

@@ -1,0 +1,81 @@
+INSTALL BACKEND
+
+is docker running?
+
+> cd ~/Projects/eventlab/backend
+> docker compose build
+> docker compose up -d
+
+POSTMAN TEST BACKEND
+
+Wrong protocol:
+GET  http://localhost:8000/index.php
+
+==>
+{
+    "status": "error",
+    "message": "Method Not Allowed. Use POST."
+}
+
+Wrong datapackage:
+POST  http://localhost:8000/index.php
+
+==>
+{
+    "status": "error",
+    "message": "Invalid JSON payload."
+}
+
+Works:
+POST  http://localhost:8000/index.php
+{
+    "package": "system",
+    "controller": "test",
+    "action": "server"
+}
+==>
+{
+    "status": "success",
+    "message": "Server active."
+}
+
+Works:
+POST  http://localhost:8000/index.php
+{
+    "package": "system",
+    "controller": "test",
+    "action": "secrets"
+}
+==>
+{
+    "status": "success",
+    "message": "Secrets found.",
+    "database": "-DBNAME-"
+}
+
+Works:
+POST  http://localhost:8000/index.php
+{
+    "package": "system",
+    "controller": "test",
+    "action": "handle",
+    "tenant": "c3",
+    "table":"login_users"
+}
+==>
+{
+    "status": "success",
+    "handle": "c3lu-1wlo1r-TcgX7",
+    "message": "Test handle generated."
+}
+
+
+or in termimal:
+> curl --location 'http://localhost:8000/index.php' \
+  	   --data '{ "package": "system", "controller": "test", "action": "server" }'
+
+or with the run command and a json in /configs.
+
+> php run.php handle
+
+

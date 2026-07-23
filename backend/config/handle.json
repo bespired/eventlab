@@ -1,0 +1,7 @@
+{
+    "package": "system",
+    "controller": "test",
+    "action": "handle",
+    "tenant": "c3",
+    "table":"login_users"
+}

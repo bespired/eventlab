@@ -1,0 +1,37 @@
+name: eventlab
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: eventlab_db
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eventlab
+      MYSQL_USER: eventlab_user
+      MYSQL_PASSWORD: eventlab_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eventlab_api
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./config/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./config/secrets/${STAGE:-development}.php:/etc/app_secret.php
+      - ../frontend/public:/var/www/src/public
+
+    depends_on:
+      - db
+
+volumes:
+  db_data:

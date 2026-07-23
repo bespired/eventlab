@@ -1,0 +1,39 @@
+{
+    "package": "system",
+    "controller": "install",
+    "action": "install",
+    "secret": "eventlab_install",
+    "dropall": true,
+    "projects": [
+        {
+            "clientname": "Eventlabs",
+            "projectname": "Eventlab",
+            "custom_domain": "eventlab.com",
+            "fallback_slug": "",
+            "tenant": "a0",
+
+            "admins": [
+            {
+                "email": "admin@bespired.nl",
+                "firstname": "Joeri",
+                "lastname": "Kassenaar",
+                "password": "eventlab_admin"
+            }]
+        },{
+            "clientname": "Eventlabs",
+            "projectname": "Project2",
+            "custom_domain": "project2.com",
+            "fallback_slug": "",
+            "tenant": "c3",
+
+            "admins": [
+            {
+                "email": "admin@bespired.nl",
+                "firstname": "Joeri",
+                "lastname": "Kassenaar",
+                "password": "project_admin"
+            }]
+        }
+
+    ]
+}

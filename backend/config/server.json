@@ -1,0 +1,5 @@
+{
+    "package": "system",
+    "controller": "test",
+    "action": "server"
+}
