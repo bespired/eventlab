@@ -1,10 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{siteTitle}} - Next-Gen Event Engine</title>
-    <meta name="description" content="Framework-free event management, registration, and dynamic API engine.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,7 +28,7 @@
             line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.15) 0%, transparent 45%),
                 radial-gradient(circle at 85% 85%, rgba(129, 140, 248, 0.15) 0%, transparent 45%);
         }
@@ -347,85 +340,3 @@
             color: var(--accent-pink);
         }
     </style>
-</head>
-<body>
-    <header>
-        <a href="/" class="logo-container">
-            <div class="logo-badge">EL</div>
-            <div class="logo-text">EventLab</div>
-        </a>
-        <nav>
-            <a href="#events" class="nav-link">Events</a>
-            <a href="#architecture" class="nav-link">Architecture</a>
-            <a href="/_api_test" id="api-link" class="nav-link">API Engine</a>
-            <a href="/app" class="btn-gui">Management GUI</a>
-        </nav>
-    </header>
-
-    <main>
-        <section class="hero">
-            <div class="hero-badge">⚡ Handlebars SSR + PHP API Engine</div>
-            <h1>{{heroTitle}}</h1>
-            <p>{{heroSubtitle}}</p>
-        </section>
-
-        <section class="stats-grid">
-            {{#each stats}}
-            <div class="stat-card">
-                <div class="stat-number">{{value}}</div>
-                <div class="stat-label">{{label}}</div>
-            </div>
-            {{/each}}
-        </section>
-
-        <div class="section-title" id="events">
-            <h2>Featured Events</h2>
-            <span style="color: var(--text-muted); font-size: 0.9rem;">Server-Side Rendered via Handlebars</span>
-        </div>
-
-        <section class="events-grid">
-            {{#each events}}
-            <div class="event-card">
-                <div class="event-header">
-                    <span class="event-tag {{#if isLive}}tag-active{{else}}tag-upcoming{{/if}}">
-                        {{status}}
-                    </span>
-                    <span class="event-date">{{date}}</span>
-                </div>
-                <div class="event-body">
-                    <h3>{{title}}</h3>
-                    <p>{{description}}</p>
-                </div>
-                <div class="event-footer">
-                    <span class="event-location">📍 {{location}}</span>
-                    <span class="event-capacity">{{attendees}} attendees</span>
-                </div>
-            </div>
-            {{/each}}
-        </section>
-
-        <div class="section-title" id="architecture">
-            <h2>Hybrid Monorepo Stack</h2>
-        </div>
-
-        <section class="tech-box">
-            <div class="tech-item">
-                <h4>Backend Engine</h4>
-                <p>Framework-free, high-performance PHP API routed via <code>/_*</code> endpoints with dynamic controller resolution.</p>
-            </div>
-            <div class="tech-item">
-                <h4>Website Engine</h4>
-                <p>Server-side rendered Handlebars templates compiled dynamically for fast public page delivery.</p>
-            </div>
-            <div class="tech-item">
-                <h4>Frontend SPA</h4>
-                <p>Vue.js SPA management interface isolated under <code>/app/*</code> with static production builds in <code>frontend/dist</code>.</p>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; {{currentYear}} EventLab. All rights reserved. Single entry point reverse proxy architecture.</p>
-    </footer>
-</body>
-</html>

@@ -2,19 +2,26 @@
 
 /**
  * EventLab Public Website Engine
- * Server-Side Rendered (PHP + Handlebars Templates)
+ * Server-Side Rendered (PHP + Handlebars Templates with Partials & Pages)
  */
 
 declare(strict_types=1);
 
-// Lightweight Handlebars template renderer
+// Lightweight Handlebars template renderer with Partials support
 class HandlebarsRenderer
 {
     /**
-     * Render a Handlebars template string with given data context
+     * Render a Handlebars template string with given data context and template directory
      */
-    public static function render(string $template, array $context): string
+    public static function render(string $template, array $context, string $templatesDir = ''): string
     {
+        if ($templatesDir === '') {
+            $templatesDir = __DIR__ . '/templates';
+        }
+
+        // 0. Resolve partial inclusions: {{> partialName }}
+        $template = self::resolvePartials($template, $templatesDir);
+
         // 1. Process #each blocks: {{#each list}}...{{/each}}
         $template = preg_replace_callback(
             '/\{\{#each\s+([a-zA-Z0-9_\.]+)\}\}(.*?)\{\{\/each\}\}/s',
@@ -39,6 +46,55 @@ class HandlebarsRenderer
 
         // 2. Process remaining variables and if blocks
         return self::renderVariablesAndIfs($template, $context, null);
+    }
+
+    /**
+     * Recursively resolve {{> partialName }} tags using partial files from templates directory
+     */
+    private static function resolvePartials(string $template, string $templatesDir, int $depth = 0): string
+    {
+        if ($depth > 10) {
+            return $template; // Safety guard against circular inclusion
+        }
+
+        return preg_replace_callback(
+            '/\{\{>\s*([a-zA-Z0-9_\-\/]+)\s*\}\}/',
+            function ($matches) use ($templatesDir, $depth) {
+                $partialName = trim($matches[1]);
+                $content = self::loadPartialFile($partialName, $templatesDir);
+
+                if ($content === null) {
+                    return "<!-- Partial '$partialName' not found -->";
+                }
+
+                // Recursively resolve nested partials inside this partial
+                return self::resolvePartials($content, $templatesDir, $depth + 1);
+            },
+            $template
+        );
+    }
+
+    private static function loadPartialFile(string $name, string $templatesDir): ?string
+    {
+        $candidates = [];
+
+        if (str_contains($name, '/')) {
+            $candidates[] = $templatesDir . '/' . $name . '.hbs';
+        }
+
+        $candidates[] = $templatesDir . '/partials/' . $name . '.hbs';
+        $candidates[] = $templatesDir . '/styles/' . $name . '.hbs';
+        $candidates[] = $templatesDir . '/scripts/' . $name . '.hbs';
+        $candidates[] = $templatesDir . '/pages/' . $name . '.hbs';
+        $candidates[] = $templatesDir . '/' . $name . '.hbs';
+
+        foreach ($candidates as $file) {
+            if (file_exists($file)) {
+                return file_get_contents($file);
+            }
+        }
+
+        return null;
     }
 
     private static function renderVariablesAndIfs(string $template, array $context, $currentItem = null): string
@@ -145,8 +201,14 @@ $dataContext = [
     ],
 ];
 
-// Load template file
-$templatePath = __DIR__ . '/templates/index.hbs';
+// Determine page template path (defaulting to website/templates/pages/index.hbs)
+$templatesDir = __DIR__ . '/templates';
+$templatePath = $templatesDir . '/pages/index.hbs';
+
+if (!file_exists($templatePath)) {
+    // Fallback if index.hbs is at root of templates
+    $templatePath = $templatesDir . '/index.hbs';
+}
 
 if (!file_exists($templatePath)) {
     http_response_code(404);
@@ -155,7 +217,7 @@ if (!file_exists($templatePath)) {
 }
 
 $templateContent = file_get_contents($templatePath);
-$html = HandlebarsRenderer::render($templateContent, $dataContext);
+$html = HandlebarsRenderer::render($templateContent, $dataContext, $templatesDir);
 
 // Output HTML response
 header('Content-Type: text/html; charset=utf-8');
