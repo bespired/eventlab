@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{siteTitle}} - Next-Gen Event Engine</title>
+    <meta name="description" content="Framework-free event management, registration, and dynamic API engine.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: rgba(22, 29, 45, 0.7);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #38bdf8;
+            --accent-purple: #818cf8;
+            --accent-pink: #f472b6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-head: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(129, 140, 248, 0.15) 0%, transparent 45%);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            backdrop-filter: blur(16px);
+            background: rgba(9, 13, 22, 0.6);
+            border-bottom: 1px solid var(--border-card);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .logo-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-head);
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #000;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .logo-text {
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.02em;
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-cyan);
+        }
+
+        .btn-gui {
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #090d16;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-gui:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.35);
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 4rem auto 3rem;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            background: rgba(129, 140, 248, 0.1);
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            color: var(--accent-purple);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-family: var(--font-head);
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            background: linear-gradient(135deg, #ffffff 40%, var(--accent-cyan) 80%, var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            font-size: 1.15rem;
+            color: var(--text-muted);
+        }
+
+        .stats-grid {
+            max-width: 1100px;
+            margin: 0 auto 5rem;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .stat-number {
+            font-family: var(--font-head);
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .section-title {
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .section-title h2 {
+            font-family: var(--font-head);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .events-grid {
+            max-width: 1200px;
+            margin: 0 auto 6rem;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .event-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 18px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(129, 140, 248, 0.5);
+        }
+
+        .event-header {
+            padding: 1.5rem 1.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-active {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .tag-upcoming {
+            background: rgba(244, 114, 182, 0.15);
+            color: var(--accent-pink);
+            border: 1px solid rgba(244, 114, 182, 0.3);
+        }
+
+        .event-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .event-body {
+            padding: 0 1.5rem 1.5rem;
+            flex: 1;
+        }
+
+        .event-body h3 {
+            font-family: var(--font-head);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .event-body p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+        }
+
+        .event-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-card);
+            background: rgba(15, 23, 42, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .event-location {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .event-capacity {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .tech-box {
+            max-width: 1200px;
+            margin: 0 auto 5rem;
+            padding: 2.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .tech-item h4 {
+            font-family: var(--font-head);
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-item p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        footer {
+            border-top: 1px solid var(--border-card);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        code {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: var(--accent-pink);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo-container">
+            <div class="logo-badge">EL</div>
+            <div class="logo-text">EventLab</div>
+        </a>
+        <nav>
+            <a href="#events" class="nav-link">Events</a>
+            <a href="#architecture" class="nav-link">Architecture</a>
+            <a href="/_api_test" id="api-link" class="nav-link">API Engine</a>
+            <a href="/app" class="btn-gui">Management GUI</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-badge">⚡ Handlebars SSR + PHP API Engine</div>
+            <h1>{{heroTitle}}</h1>
+            <p>{{heroSubtitle}}</p>
+        </section>
+
+        <section class="stats-grid">
+            {{#each stats}}
+            <div class="stat-card">
+                <div class="stat-number">{{value}}</div>
+                <div class="stat-label">{{label}}</div>
+            </div>
+            {{/each}}
+        </section>
+
+        <div class="section-title" id="events">
+            <h2>Featured Events</h2>
+            <span style="color: var(--text-muted); font-size: 0.9rem;">Server-Side Rendered via Handlebars</span>
+        </div>
+
+        <section class="events-grid">
+            {{#each events}}
+            <div class="event-card">
+                <div class="event-header">
+                    <span class="event-tag {{#if isLive}}tag-active{{else}}tag-upcoming{{/if}}">
+                        {{status}}
+                    </span>
+                    <span class="event-date">{{date}}</span>
+                </div>
+                <div class="event-body">
+                    <h3>{{title}}</h3>
+                    <p>{{description}}</p>
+                </div>
+                <div class="event-footer">
+                    <span class="event-location">📍 {{location}}</span>
+                    <span class="event-capacity">{{attendees}} attendees</span>
+                </div>
+            </div>
+            {{/each}}
+        </section>
+
+        <div class="section-title" id="architecture">
+            <h2>Hybrid Monorepo Stack</h2>
+        </div>
+
+        <section class="tech-box">
+            <div class="tech-item">
+                <h4>Backend Engine</h4>
+                <p>Framework-free, high-performance PHP API routed via <code>/_*</code> endpoints with dynamic controller resolution.</p>
+            </div>
+            <div class="tech-item">
+                <h4>Website Engine</h4>
+                <p>Server-side rendered Handlebars templates compiled dynamically for fast public page delivery.</p>
+            </div>
+            <div class="tech-item">
+                <h4>Frontend SPA</h4>
+                <p>Vue.js SPA management interface isolated under <code>/app/*</code> with static production builds in <code>frontend/dist</code>.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; {{currentYear}} EventLab. All rights reserved. Single entry point reverse proxy architecture.</p>
+    </footer>
+</body>
+</html>

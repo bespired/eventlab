@@ -1,7 +1,9 @@
 <?php
 
-// 1. Build the master prefix map by scanning the packages folder
-$prefixMap  = [];
+// 1. Build the master prefix map by scanning src and packages folders
+$prefixMap  = [
+    'EventLab\\' => __DIR__ . '/src/',
+];
 $packageDir = __DIR__ . '/packages';
 
 if (is_dir($packageDir)) {

@@ -1,0 +1,29 @@
+PROTOCOL PANEL QUERY
+
+{
+	type: "segment",
+	score: true,
+	constants: {
+		's1': "hello",
+		'n1': 100,
+		'e1': "event-1",
+	},
+	times: {
+		't1': { 'range': 'any' },
+		't2': { 'range': 'between', 'startdate': "2026-01-01", 'enddate': "2026-31-01"},
+		't3': { 'range': 'between', 'startdate': "2026-01-01", 'period': "month"},
+		/* dates are included defined date */
+	},
+
+	expression: {
+
+		(field-firstname = s1)[t1] OR (tag-firstname ATTACHED)[t2]
+
+	}
+
+
+}
+
+//  do we need ATTACHED differ from WAS_ATTACHED ?
+// `was_attached` being was attached during that time period and
+// `attached` being; in this time period it is attached to prospect ?

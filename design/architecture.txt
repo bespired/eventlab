@@ -1,0 +1,114 @@
+Yes, absolutely—this is a very standard and clean architecture! What you are looking for is essentially a **Hybrid Monorepo/Multi-Domain Architecture** with a **Single Entry Point Reverse Proxy/Router** pattern.
+
+It is completely achievable without bloat by separating concerns between development mode and production deployment.
+
+---
+
+## 1. Concrete Architecture Strategy
+
+To keep things modular yet deployment-friendly:
+
+```text
+my-project/
+├── backend/          # PHP API Engine (Framework-free, lightweight)
+│   ├── config/
+│   ├── src/
+│   └── public/
+│       └── index.php # Handles API routing (/_*) & dynamic core endpoints
+├── website/          # Server-Side Rendered Public Site (PHP + Handlebars)
+│   └── templates/
+├── frontend/         # Vue.js SPA (Management GUI)
+│   ├── src/
+│   ├── package.json
+│   └── dist/         # Compiled static production build
+└── docker/           # Apache/Nginx + PHP container setup
+
+```
+
+---
+
+## 2. Dynamic Request Routing Mechanics
+
+You can handle the `/_` path segregation cleanly at either the Web Server level (Nginx/Apache) or directly in PHP via a main front-controller.
+
+### Option A: Web Server Level (Recommended for Performance)
+
+Using Nginx or Apache mod_rewrite, requests are dispatched before PHP even executes:
+
+* **`/_*` requests** $\rightarrow$ Passed directly to `backend/public/index.php` (API Router).
+* **`/app/*` or Static Assets** $\rightarrow$ Served straight from `frontend/dist/` (or proxied to Vite during development).
+* **All other requests (`/*`)** $\rightarrow$ Routed to `website/index.php` (Handlebars template compiler).
+
+#### Apache `.htaccess` Example
+
+```apache
+RewriteEngine On
+
+# 1. Backend API Routing
+RewriteRule ^_/(.*)$ backend/public/index.php [L,QSA]
+
+# 2. Vue Frontend Application (Production dist)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^app/(.*)$ frontend/dist/index.html [L]
+
+# 3. Public Website (Handlebars)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ website/index.php [L,QSA]
+
+```
+
+### Option B: PHP Unified Routing (`index.php`)
+
+If you prefer a single `index.php` entry point:
+
+```php
+<?php
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+if (str_starts_with($uri, '/_')) {
+    // Route to Backend API Engine
+    require_once __DIR__ . '/backend/public/index.php';
+} elseif (str_starts_with($uri, '/app')) {
+    // Serve Vue SPA Entry Point
+    require_once __DIR__ . '/frontend/dist/index.html';
+} else {
+    // Route to Handlebars SSR Website Engine
+    require_once __DIR__ . '/website/index.php';
+}
+
+```
+
+---
+
+## 3. Dev vs. Production Workflow in Docker
+
+### Development Workflow (`npm run dev`)
+
+1. **Docker (Apache/PHP)** runs on `localhost:8080`, servicing the PHP API (`localhost:8080/_/...`) and the Handlebars website (`localhost:8080/`).
+2. **Vite / Vue Dev Server** runs on `localhost:5173`.
+3. **Vite Proxy:** Configure `vite.config.js` to proxy API requests straight to Docker:
+
+```js
+// frontend/vite.config.js
+export default defineConfig({
+  server: {
+    proxy: {
+      '/_': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      }
+    }
+  }
+})
+
+```
+
+### Production Workflow (`dist`)
+
+1. Run `npm run build` inside `frontend/` to output the bundled asset files into `frontend/dist/`.
+2. The Docker container mounts or copies `frontend/dist/` into the web root.
+3. Apache directly serves the static JS/CSS/HTML bundle for `/app`, while routing API calls (`/_`) to PHP without needing Node or Vite in production.
+
+Does this alignment fit the mental model you have in mind for structuring your project?

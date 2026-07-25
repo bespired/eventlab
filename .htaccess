@@ -1,0 +1,18 @@
+DirectoryIndex website/index.php
+
+RewriteEngine On
+Options -Indexes +FollowSymLinks
+
+# 1. Backend API Routing (/_*)
+RewriteRule ^_/(.*)$ backend/public/index.php [L,QSA]
+RewriteRule ^_$ backend/public/index.php [L,QSA]
+
+# 2. Vue Frontend Application (Production dist & SPA fallback for /app)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^app/(.*)$ frontend/dist/index.html [L]
+RewriteRule ^app$ frontend/dist/index.html [L]
+
+# 3. Public Website (Handlebars SSR)
+RewriteRule ^$ website/index.php [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ website/index.php [L,QSA]

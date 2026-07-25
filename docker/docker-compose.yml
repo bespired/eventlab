@@ -23,12 +23,12 @@ services:
     container_name: eventlab_api
     restart: always
     ports:
+      - "80:80"
       - "8000:80"
     volumes:
-      - .:/var/www/html
+      - ..:/var/www/html
       - ./config/custom.ini:/usr/local/etc/php/conf.d/custom.ini
       - ./config/secrets/${STAGE:-development}.php:/etc/app_secret.php
-      - ../frontend/public:/var/www/src/public
 
     depends_on:
       - db

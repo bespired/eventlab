@@ -1,0 +1,7 @@
+PHP EXTENDERS
+
+
+global functions or util class
+
+json4_decode() {}
+json4_encode() {}

@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# 1. Backend API Routing
+RewriteRule ^_/(.*)$ backend/public/index.php [L,QSA]
+
+# 2. Vue Frontend Application (Production dist)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^app/(.*)$ frontend/dist/index.html [L]
+
+# 3. Public Website (Handlebars)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ website/index.php [L,QSA]
