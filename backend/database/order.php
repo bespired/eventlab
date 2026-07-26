@@ -39,16 +39,16 @@ $allMigrations = [
     'dynamics' => [
         // MIGRATION
 
-        '/dynamics/prospects.sql'    => 'table',
+        '/dynamics/prospects.sql'        => 'table',
 
-        '/dynamics/puls_forms.sql'   => 'table',
-        '/dynamics/puls_signals.sql' => 'table',
-        '/dynamics/puls_visits.sql'  => 'table',
-        '/dynamics/puls_events.sql'  => 'table',
+        '/dynamics/puls_forms.sql'       => 'table',
+        '/dynamics/puls_signals.sql'     => 'table',
+        '/dynamics/puls_visits.sql'      => 'table',
+        '/dynamics/puls_events.sql'      => 'table',
 
-        '/dynamics/accu_bits.sql'    => 'table',
-        '/dynamics/accu_tupples.sql' => 'table',
-        '/dynamics/accu_words.sql'   => 'table',
+        '/dynamics/accu_bits.sql'        => 'table',
+        '/dynamics/accu_tupples.sql'     => 'table',
+        '/dynamics/accu_words.sql'       => 'table',
 
         '/dynamics/qualifiers.sql'       => 'table',
         '/dynamics/qualifier_panels.sql' => 'table',
@@ -70,5 +70,6 @@ $allMigrations = [
         '/builders/builder_pages.sql'    => 'table',
 
         // SEEDS
+        '/seeds/forms.sql'               => 'seed',
     ],
 ];

@@ -31,6 +31,19 @@ if (json_last_error() !== JSON_ERROR_NONE || !is_object($args)) {
     exit;
 }
 
+if (isset($argv[2]) && $argv[2] !== '') {
+    $extraArg = $argv[2];
+    $decoded  = json_decode($extraArg, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        foreach ($decoded as $k => $v) {
+            $args->$k = $v;
+        }
+    } else {
+        $args->handle = $extraArg;
+    }
+}
+
+
 if (!isset($args->package) || !is_string($args->package)) {
     echo "status  => error\n";
     echo "message => File is missing or invalid 'package' parameter.\n";

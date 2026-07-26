@@ -1,6 +1,12 @@
 CREATE TABLE `builder_forms` (
   `handle`   varchar(32) NOT NULL,
 
+  `name`     varchar(128) NOT NULL,
+  `label`    varchar(128) NOT NULL DEFAULT "new form",
+
+  `layout`   text NULL,
+  `validate` text NULL,
+
   `created_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (`handle`),

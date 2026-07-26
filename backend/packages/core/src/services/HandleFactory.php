@@ -1,5 +1,4 @@
 <?php
-
 namespace EventLab\Core\Services;
 
 use EventLab\Core\Support\Base62Converter;
@@ -11,32 +10,37 @@ use EventLab\Core\Support\Base62Converter;
 class HandleFactory
 {
     private array $tables = [
-        'accu_attributes' => 'aa',
-        'accu_bits'       => 'ab',
-        'accu_tupples'    => 'at',
-        'accu_words'      => 'aw',
-        'cache'           => 'cc',
-        'lut_agents'      => 'la',
-        'lut_locations'   => 'll',
-        'lut_referrers'   => 'lr',
-        'notes'           => 'nt',
-        'prospects'       => 'pp',
-        'puls_events'     => 'pe',
-        'puls_forms'      => 'pf',
-        'puls_signals'    => 'ps',
-        'puls_visits'     => 'pv',
-        'projects'        => 'pr',
-        'settings'        => 'se',
-        'tags'            => 'tg',
-        'login_tokens'    => 'tt',
-        'templates'       => 'tp',
-        'unknown'         => 'un',
-        'user_logins'     => 'ul',
-        'user_roles'      => 'ur',
-        'user_tenants'    => 'ut',
 
-        'widgets'         => 'wd',
-        'elmi'            => 'el',
+        'accu_attributes'  => 'aa',
+        'accu_bits'        => 'ab',
+        'accu_tupples'     => 'at',
+        'accu_words'       => 'aw',
+        'builder_pages'    => 'bp',
+        'builder_forms'    => 'bf',
+        'builder_sections' => 'bs',
+        'cache'            => 'cc',
+        'elmi'             => 'el',
+        'lut_agents'       => 'la',
+        'user_logins'      => 'lg',
+        'lut_locations'    => 'll',
+        'lut_referrers'    => 'lr',
+        'notes'            => 'nt',
+        'prospects'        => 'pp',
+        'puls_events'      => 'pe',
+        'puls_forms'       => 'pf',
+        'puls_signals'     => 'ps',
+        'puls_visits'      => 'pv',
+        'projects'         => 'pr',
+        'user_roles'       => 'rl',
+        'settings'         => 'se',
+        'site_settings'    => 'si',
+        'site_urls'        => 'ul',
+        'unknown'          => 'un',
+        'tags'             => 'tg',
+        'user_tenants'     => 'tn',
+        'templates'        => 'tp',
+        'login_tokens'     => 'tt',
+        'widgets'          => 'wd',
     ];
 
     private Base62Converter $converter;

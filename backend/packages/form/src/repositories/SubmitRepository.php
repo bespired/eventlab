@@ -2,6 +2,7 @@
 namespace EventLab\Form\Repositories;
 
 use EventLab\Core\Services\HandleFactory;
+use EventLab\Prospect\Repositories\ContactRepository;
 use PDO;
 
 class SubmitRepository
@@ -9,399 +10,158 @@ class SubmitRepository
     private PDO $globalPdo;
     private PDO $tenantPdo;
     private HandleFactory $handleFactory;
+    private ContactRepository $contactRepository;
 
-    public function __construct(PDO $globalPdo, PDO $tenantPdo, HandleFactory $handleFactory)
-    {
-        $this->globalPdo     = $globalPdo;
-        $this->tenantPdo     = $tenantPdo;
-        $this->handleFactory = $handleFactory;
+    public function __construct(
+        PDO $globalPdo,
+        PDO $tenantPdo,
+        HandleFactory $handleFactory,
+        ContactRepository $contactRepository
+    ) {
+        $this->globalPdo         = $globalPdo;
+        $this->tenantPdo         = $tenantPdo;
+        $this->handleFactory     = $handleFactory;
+        $this->contactRepository = $contactRepository;
     }
 
     /**
-     * Import an array of contact arrays into the tenant DB.
+     * Store incoming form submission args into tenant's puls_forms table.
      *
      * @param  string $tenant
-     * @param  array  $contacts  Each element is an associative array of field => value.
-     * @return array  ['imported' => int, 'errors' => array]
+     * @param  object $args
+     * @return string Generated handle
      */
-    public function importContacts(string $tenant, array $contacts): array
+    public function saveFormSubmission(string $tenant, object $args): string
     {
-        // Load accumulator attribute map from the global DB, keyed by handle.
-        // e.g. ['firstname' => ['accu' => 'word', 'slot' => 3, ...], ...]
-        $attributes = $this->loadAttributes();
+        $handle   = $this->handleFactory->create('puls_forms', $tenant);
+        $formdata = json_encode($args);
+        $prospect = $args->prospect ?? null;
+        $name     = $args->sys ?? null;
 
-        $imported = 0;
-        $errors   = [];
-
-        foreach ($contacts as $contact) {
-            try {
-                $email = $contact['email'] ?? null;
-                if (! $email) {
-                    $errors[] = ['contact' => $contact, 'error' => 'Missing email — skipped'];
-                    continue;
-                }
-
-                // 1. Upsert prospect row
-                $prospectHandle = $this->upsertProspect($tenant, $contact);
-
-                             // 2. Build column maps for each accumulator table
-                $words = []; // ['word_3' => 'Joeri', ...]
-                $bits  = []; // ['bit_1' => 1, 'time_1' => '2026-01-01', ...]
-                $tupps = []; // ['tupp_1' => 'opt-in', 'time_1' => '2026-01-01', ...]
-
-                foreach ($contact as $key => $rawValue) {
-                    if (! isset($attributes[$key])) {
-                        continue; // Not a known attribute — skip
-                    }
-
-                    $attr = $attributes[$key];
-                    $accu = $attr['accu'];
-                    $slot = (int) $attr['slot'];
-
-                    switch ($accu) {
-                        case 'word':
-                            $words["word_{$slot}"] = (string) $rawValue;
-                            break;
-
-                        case 'bit':
-                            [$bitVal, $timeVal]   = $this->parseBit($rawValue);
-                            $bits["bit_{$slot}"]  = $bitVal;
-                            $bits["time_{$slot}"] = $timeVal;
-                            break;
-
-                        case 'tupp':
-                            [$tuppVal, $timeVal]   = $this->parseTupp($rawValue);
-                            $tupps["tupp_{$slot}"] = $tuppVal;
-                            $tupps["time_{$slot}"] = $timeVal;
-                            break;
-                    }
-                }
-
-                // 3. Upsert accumulator tables (only if data is present)
-                if (! empty($words)) {
-                    $this->upsertAccumulator('accu_words', $prospectHandle, $words);
-                }
-                if (! empty($bits)) {
-                    $this->upsertAccumulator('accu_bits', $prospectHandle, $bits);
-                }
-                if (! empty($tupps)) {
-                    $this->upsertAccumulator('accu_tupples', $prospectHandle, $tupps);
-                }
-
-                // 4. Post-compute pass: derive 'system' attributes from their rules
-                $this->computeSystemAttributes($prospectHandle, $attributes, $words);
-
-                $imported++;
-            } catch (\Throwable $e) {
-                $errors[] = ['contact' => $contact['email'] ?? '?', 'error' => $e->getMessage()];
-            }
-        }
-
-        return ['imported' => $imported, 'errors' => $errors];
-    }
-
-    // -------------------------------------------------------------------------
-    // Private helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Load all accu_attributes from the global DB, keyed by handle.
-     */
-    private function loadAttributes(): array
-    {
-        $stmt = $this->globalPdo->query('SELECT handle, accu, slot, type, owner, rules, sane FROM accu_attributes');
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $map = [];
-        foreach ($rows as $row) {
-            $map[$row['handle']] = $row;
-        }
-
-        return $map;
-    }
-
-    /**
-     * Post-compute pass: evaluate all 'system'-type word attributes whose rules
-     * reference other word handles, then write the results back into accu_words.
-     *
-     * Rules syntax: space-separated list of handles, each optionally suffixed with
-     * ':<n>' to take the first n characters.  Empty/null resolved values are omitted.
-     *
-     * Examples:
-     *   'firstname infix lastname'  → join non-empty values with a space
-     *   'firstname:1 lastname:1'    → first char of each (initials), e.g. "JK"
-     *
-     * @param string $prospectHandle
-     * @param array  $attributes     Full attribute map (from loadAttributes)
-     * @param array  $writtenWords   ['word_3' => 'Joeri', ...] from the current import
-     */
-    private function computeSystemAttributes(string $prospectHandle, array $attributes, array $writtenWords): void
-    {
-        // Collect all attributes that have rules defined
-        $systemAttrs = array_filter(
-            $attributes,
-            fn($a) => $a['accu'] === 'word' && ! empty($a['rules'])
+        $stmt = $this->tenantPdo->prepare(
+            'INSERT INTO puls_forms (handle, prospect, name, formdata) VALUES (:handle, :prospect, :name, :formdata)'
         );
 
-        if (empty($systemAttrs)) {
-            return;
-        }
-
-        // Build a handle→value lookup from what was just written (words already in memory)
-        // Key: attribute handle, Value: the string value
-        $handleToValue = [];
-        foreach ($attributes as $handle => $attr) {
-            if ($attr['accu'] !== 'word') {
-                continue;
-            }
-            $col = 'word_' . (int) $attr['slot'];
-            if (isset($writtenWords[$col])) {
-                $handleToValue[$handle] = $writtenWords[$col];
-            }
-        }
-
-        $computed        = []; // ['word_6' => 'Joeri Kassenaar', ...]
-        $prospectUpdates = []; // ['username' => 'joeri-kassenaar', ...]
-
-        foreach ($systemAttrs as $handle => $attr) {
-            $rule = trim($attr['rules']);
-            if (str_contains($rule, ';')) {
-                $glue   = '';
-                $tokens = explode(';', $rule);
-            } elseif (str_contains($rule, '-')) {
-                $glue   = '-';
-                $tokens = explode('-', $rule);
-            } else {
-                $glue   = ' ';
-                $tokens = preg_split('/\s+/', $rule);
-            }
-
-            $parts = [];
-
-            foreach ($tokens as $token) {
-                $token = trim($token);
-                if ($token === '') {
-                    continue;
-                }
-
-                // Token may be 'Handle' or 'Handle:n'
-                if (str_contains($token, ':')) {
-                    [$refHandle, $modifier] = explode(':', $token, 2);
-                    $cleanHandle            = strtolower($refHandle);
-                    $val                    = $handleToValue[$cleanHandle] ?? null;
-                    if ($val !== null && $val !== '') {
-                        $val     = $this->applyTokenModifier($val, $modifier);
-                        $parts[] = $this->applyTokenCasing($val, $refHandle);
-                    }
-                } else {
-                    $cleanHandle = strtolower($token);
-                    $val         = $handleToValue[$cleanHandle] ?? null;
-                    if ($val !== null && $val !== '') {
-                        $parts[] = $this->applyTokenCasing($val, $token);
-                    }
-                }
-            }
-
-            if (! empty($parts)) {
-                $col            = 'word_' . (int) $attr['slot'];
-                $val            = implode($glue, $parts);
-                $computed[$col] = $val;
-
-                // If owner or type is 'prospect', copy value to the prospects table
-                if (($attr['owner'] ?? '') === 'prospect' || ($attr['type'] ?? '') === 'prospect') {
-                    $prospectUpdates[$handle] = $val;
-                }
-            }
-        }
-
-        if (! empty($computed)) {
-            $this->upsertAccumulator('accu_words', $prospectHandle, $computed);
-        }
-
-        if (! empty($prospectUpdates)) {
-            $setClause = implode(', ', array_map(fn($c) => "`{$c}` = :{$c}", array_keys($prospectUpdates)));
-            $sql       = "UPDATE `prospects` SET {$setClause}, `updated_at` = NOW() WHERE `handle` = :prospect_handle";
-            $params    = [':prospect_handle' => $prospectHandle];
-            foreach ($prospectUpdates as $c => $v) {
-                $params[":{$c}"] = $v;
-            }
-            try {
-                $this->tenantPdo->prepare($sql)->execute($params);
-            } catch (\PDOException $e) {
-                // Ignore if column doesn't exist on prospects table
-            }
-        }
-    }
-
-    /**
-     * Apply letter casing based on how the token handle is written in the rule.
-     *
-     * Rules:
-     *   ALL UPPERCASE (e.g. FIRSTNAME)   -> mb_strtoupper (all caps)
-     *   Title / Ucfirst (e.g. Firstname) -> mb_convert_case (capitalized)
-     *   all lowercase (e.g. firstname)   -> mb_strtolower (undercast)
-     *
-     * @param  string $value
-     * @param  string $rawHandle Token as written in rule (e.g. "Firstname", "firstname", "FIRSTNAME")
-     * @return string
-     */
-    private function applyTokenCasing(string $value, string $rawHandle): string
-    {
-        if (empty($value)) {
-            return $value;
-        }
-
-        // ALL UPPERCASE check (e.g. FIRSTNAME or F)
-        if (mb_strtoupper($rawHandle) === $rawHandle && mb_strtolower($rawHandle) !== $rawHandle) {
-            return mb_strtoupper($value, 'UTF-8');
-        }
-
-        // Title / Ucfirst check (e.g. Firstname or F)
-        $firstChar = mb_substr($rawHandle, 0, 1);
-        if (mb_strtoupper($firstChar) === $firstChar && mb_strtolower($firstChar) !== $firstChar) {
-            return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
-        }
-
-        // All lowercase check (e.g. firstname or f)
-        if (mb_strtolower($rawHandle) === $rawHandle) {
-            return mb_strtolower($value, 'UTF-8');
-        }
-
-        return $value;
-    }
-
-    /**
-     * Apply a modifier string to a field value.
-     *
-     * Supported modifiers:
-     *   '<n>'  (integer) — take first n characters, e.g. ':1' → first character
-     *
-     * @param  string $value
-     * @param  string $modifier
-     * @return string
-     */
-    private function applyTokenModifier(string $value, string $modifier): string
-    {
-        if (ctype_digit($modifier)) {
-            return mb_substr($value, 0, (int) $modifier);
-        }
-
-        // Unknown modifier — return value unchanged
-        return $value;
-    }
-
-    /**
-     * Upsert a prospect row, returns the prospect's handle.
-     */
-    private function upsertProspect(string $tenant, array $contact): string
-    {
-        $email = $contact['email'];
-
-        // Check if prospect already exists
-        $stmt = $this->tenantPdo->prepare('SELECT handle FROM prospects WHERE email = :email');
-        $stmt->execute([':email' => $email]);
-        $row = $stmt->fetch();
-
-        if ($row) {
-            // Update existing prospect
-            $this->tenantPdo->prepare('UPDATE prospects SET is_contact = 1, updated_at = NOW() WHERE email = :email')
-                ->execute([':email' => $email]);
-
-            return $row['handle'];
-        }
-
-        // Insert new prospect
-        $handle = $this->handleFactory->create('prospects', $tenant);
-
-        $this->tenantPdo->prepare('
-            INSERT INTO prospects (handle, email, is_contact)
-            VALUES (:handle, :email, 1)
-        ')->execute([
-            ':handle' => $handle,
-            ':email'  => $email,
+        $stmt->execute([
+            ':handle'   => $handle,
+            ':prospect' => $prospect,
+            ':name'     => $name,
+            ':formdata' => $formdata,
         ]);
 
         return $handle;
     }
 
     /**
-     * Upsert a single row into an accumulator table for the given prospect.
-     * Only the columns present in $columns are included in the statement.
+     * Get a form submission by handle from tenant database.
      *
-     * @param string $table         e.g. 'accu_words'
-     * @param string $prospectHandle
-     * @param array  $columns       ['word_3' => 'Joeri', ...]
+     * @param  string $handle
+     * @return array|null
      */
-    private function upsertAccumulator(string $table, string $prospectHandle, array $columns): void
+    public function getFormSubmission(string $handle): ?array
     {
-        $colNames     = array_keys($columns);
-        $colList      = implode(', ', array_map(fn($c) => "`{$c}`", $colNames));
-        $placeholders = implode(', ', array_map(fn($c) => ":{$c}", $colNames));
+        $select = 'SELECT handle, prospect, name, formdata FROM puls_forms WHERE handle = :handle LIMIT 1';
+        $stmt   = $this->tenantPdo->prepare($select);
+        $stmt->execute([':handle' => $handle]);
+        $row = $stmt->fetch();
 
-        // ON DUPLICATE KEY UPDATE only the data columns, not the PK
-        $updates = implode(', ', array_map(fn($c) => "`{$c}` = VALUES(`{$c}`)", $colNames));
-
-        $sql = "INSERT INTO `{$table}` (prospect, {$colList})
-                VALUES (:prospect, {$placeholders})
-                ON DUPLICATE KEY UPDATE {$updates}";
-
-        $params = [':prospect' => $prospectHandle];
-        foreach ($columns as $col => $val) {
-            $params[":{$col}"] = $val;
-        }
-
-        $this->tenantPdo->prepare($sql)->execute($params);
+        return $row ?: null;
     }
 
     /**
-     * Parse a bit value.
+     * Process a stored form submission by handle.
      *
-     * Supported formats:
-     *   true / false (boolean)
-     *   "true" / "false" (string)
-     *   "true::2026-01-01"  → bit=1, time='2026-01-01'
-     *   "false::2026-01-01" → bit=0, time='2026-01-01'
+     * 1. Load submission from puls_forms.
+     * 2. Look up builder_forms.validate by the 'sys' (form name) to get mnemonic → attribute map.
+     * 3. Remap the mnemonic form fields to real attribute handles.
+     * 4. Call ContactRepository::importContacts() to upsert prospect + accu_* data.
      *
-     * @return array [int $bitValue, string|null $timeValue]
+     * @param  string $tenant
+     * @param  string $handle
+     * @return array
      */
-    private function parseBit(mixed $raw): array
+    public function processFormSubmission(string $tenant, string $handle): array
     {
-        if (is_bool($raw)) {
-            return [$raw ? 1 : 0, null];
+        // 1. Load stored submission
+        $submission = $this->getFormSubmission($handle);
+        if (! $submission) {
+            return [
+                'status'  => 'error',
+                'message' => "Form submission '{$handle}' not found.",
+            ];
         }
 
-        $str = (string) $raw;
+        $formdata = json_decode($submission['formdata'], true) ?? [];
+        $sys      = $formdata['sys'] ?? null;
+        $form     = $formdata['form'] ?? [];
 
-        if (str_contains($str, '::')) {
-            [$boolPart, $timePart] = explode('::', $str, 2);
-            $bitVal                = in_array(strtolower(trim($boolPart)), ['1', 'true', 'yes'], true) ? 1 : 0;
-            $timeVal               = trim($timePart) ?: null;
-
-            return [$bitVal, $timeVal];
+        if (empty($sys)) {
+            return [
+                'status'  => 'error',
+                'message' => "Form submission '{$handle}' is missing 'sys' (form name).",
+            ];
         }
 
-        return [in_array(strtolower($str), ['1', 'true', 'yes'], true) ? 1 : 0, null];
+        // 2. Load the form schema (validate column) from builder_forms by name
+        $mnemonicMap = $this->loadFormValidate($sys);
+        if ($mnemonicMap === null) {
+            return [
+                'status'  => 'error',
+                'message' => "Form definition '{$sys}' not found in builder_forms.",
+            ];
+        }
+
+        // 3. Remap mnemonic keys → real attribute handles
+        //    builder_forms.validate: { "yui16": { "attribute": "tag-firstname", ... }, ... }
+        $contact = [];
+        foreach ($form as $mnemonic => $value) {
+            if (isset($mnemonicMap[$mnemonic]['attribute'])) {
+                $attributeHandle        = $mnemonicMap[$mnemonic]['attribute'];
+                $contact[$attributeHandle] = $value;
+            }
+        }
+
+        if (empty($contact)) {
+            return [
+                'status'  => 'error',
+                'message' => "No mappable fields found in form submission '{$handle}'.",
+            ];
+        }
+
+        // 4. Delegate to ContactRepository to upsert prospect + accu_* tables
+        $result = $this->contactRepository->importContacts($tenant, [$contact]);
+
+        return [
+            'status'   => 'success',
+            'message'  => "Form submission '{$handle}' processed successfully.",
+            'handle'   => $handle,
+            'tenant'   => $tenant,
+            'imported' => $result['imported'],
+            'errors'   => $result['errors'],
+        ];
     }
 
     /**
-     * Parse a tupple value.
+     * Load the validate JSON from builder_forms for the given form name (sys).
+     * Returns an associative array keyed by mnemonic, or null if not found.
      *
-     * Supported formats:
-     *   "opt-in::2026-01-01" → tupp='opt-in', time='2026-01-01'
-     *   "opt-out"            → tupp='opt-out', time=null
-     *
-     * @return array [string $tuppValue, string|null $timeValue]
+     * @param  string $name  e.g. 'newsletter-form'
+     * @return array|null
      */
-    private function parseTupp(mixed $raw): array
+    private function loadFormValidate(string $name): ?array
     {
-        $str = (string) $raw;
+        $stmt = $this->tenantPdo->prepare(
+            'SELECT validate FROM builder_forms WHERE name = :name LIMIT 1'
+        );
+        $stmt->execute([':name' => $name]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (str_contains($str, '::')) {
-            [$tuppPart, $timePart] = explode('::', $str, 2);
-
-            return [trim($tuppPart), trim($timePart) ?: null];
+        if (! $row || empty($row['validate'])) {
+            return null;
         }
 
-        return [$str, null];
+        $map = json_decode($row['validate'], true);
+
+        return is_array($map) ? $map : null;
     }
 }

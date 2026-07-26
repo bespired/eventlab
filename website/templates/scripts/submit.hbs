@@ -27,29 +27,34 @@ document.querySelectorAll('[data-tenant]').forEach(form => {
     form.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const datakey = event.target.querySelector('[name="sys"]');
-        const object  = JSON.parse(atob(datakey.value));
+        // 1. Re-use form element ID directly as the 'sys' schema key
+        const sysId = this.id;
 
-        const formData = new FormData(event.target);
-        const data = {};
-        const inputs = Object.keys(object);
+        // 2. Extract DOM values with pure JS types (no 'on' strings)
+        const formData = {};
 
-        console.log(this, event);
+        Array.from(this.elements).forEach(input => {
+            // Skip buttons, hidden meta, unnamed, or disabled fields
+            if (!input.name || input.disabled || ['submit', 'button', 'hidden'].includes(input.type)) return;
 
-        data['formname'] = this.name;
-        data['sys'] = formData.get('sys');
-        data['vid'] = null; // visitor id if any or elmi if any
-        inputs.forEach(r => {
-            data[r] = formData.get(r);
-            if (undefined !== object[r].checkbox) data[r] = data[r] === 'on';
+            if (input.type === 'checkbox') {
+                formData[input.name] = input.checked; // Direct boolean!
+            } else if (input.type === 'radio') {
+                if (input.checked) formData[input.name] = input.value;
+            } else {
+                formData[input.name] = input.value.trim();
+            }
         });
 
         const payload = {
             package: "form",
             controller: "submit",
             action: "incomming",
-            tenant: this.attributes['data-tenant'].value,
-            form: data
+
+            sys: sysId,
+            vid: null, // visitor id
+            tenant: this.dataset.tenant || null,
+            form: formData
         };
 
         fetch('/_', {
@@ -57,27 +62,18 @@ document.querySelectorAll('[data-tenant]').forEach(form => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then((response) => {
-            if (!response.ok) {
-                if (errorspot) errorspot.innerHTML = "We are sorry, there is a network error.";
-                throw new Error('Network error');
-            }
-            return response.json(); // Parses JSON response body
-        })
-        .then((data) => {
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+        .then(data => {
             if (data.status === 'success') {
-                form.classList.replace('state-is-form', 'state-is-swap');
-            } else {
-                if (data.status === 'error') {
-                    if (errorspot) errorspot.innerHTML = "We are sorry something went wrong: " + data.message;
-                }
-                console.warn('Submission unsuccessful:', data);
+                this.classList.replace('state-is-form', 'state-is-swap');
+            }else{
+                if (errorspot) errorspot.textContent = data.message
             }
         })
-        .catch((error) => {
-            if (errorspot) errorspot.innerHTML = "We are sorry there is an error:" + JSON.stringify(error);
-            console.error('Fetch error:', error);
+        .catch(err => {
+            if (errorspot) errorspot.textContent = "We are sorry, a submission error occurred.";
         });
     });
+
 });
 </script>
