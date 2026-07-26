@@ -1,0 +1,83 @@
+<script>
+document.querySelectorAll('[data-tenant]').forEach(form => {
+    const submitBtn     = form.querySelector('button.btn-gui');
+    const disablerInput = form.querySelector('[data-disabler]');
+    const errorspot     = form.querySelector('[data-error]');
+
+    if (disablerInput) {
+        // 1. Init: Sync button state with disabler input state on load
+        if (submitBtn) {
+            submitBtn.disabled = !disablerInput.checked;
+        }
+
+        // 2. Change listener: Toggle disabled state whenever it changes
+        disablerInput.addEventListener('change', function () {
+            if (submitBtn) {
+                submitBtn.disabled = !this.checked;
+            }
+        });
+    } else {
+        // 3. Fallback: If no element has data-disabler, make sure button is enabled
+        if (submitBtn) {
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Form Submit Handler
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const datakey = event.target.querySelector('[name="sys"]');
+        const object  = JSON.parse(atob(datakey.value));
+
+        const formData = new FormData(event.target);
+        const data = {};
+        const inputs = Object.keys(object);
+
+        console.log(this, event);
+
+        data['formname'] = this.name;
+        data['sys'] = formData.get('sys');
+        data['vid'] = null; // visitor id if any or elmi if any
+        inputs.forEach(r => {
+            data[r] = formData.get(r);
+            if (undefined !== object[r].checkbox) data[r] = data[r] === 'on';
+        });
+
+        const payload = {
+            package: "form",
+            controller: "submit",
+            action: "incomming",
+            tenant: this.attributes['data-tenant'].value,
+            form: data
+        };
+
+        fetch('/_', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then((response) => {
+            if (!response.ok) {
+                if (errorspot) errorspot.innerHTML = "We are sorry, there is a network error.";
+                throw new Error('Network error');
+            }
+            return response.json(); // Parses JSON response body
+        })
+        .then((data) => {
+            if (data.status === 'success') {
+                form.classList.replace('state-is-form', 'state-is-swap');
+            } else {
+                if (data.status === 'error') {
+                    if (errorspot) errorspot.innerHTML = "We are sorry something went wrong: " + data.message;
+                }
+                console.warn('Submission unsuccessful:', data);
+            }
+        })
+        .catch((error) => {
+            if (errorspot) errorspot.innerHTML = "We are sorry there is an error:" + JSON.stringify(error);
+            console.error('Fetch error:', error);
+        });
+    });
+});
+</script>
