@@ -1,10 +1,10 @@
 CREATE TABLE `puls_forms` (
   `handle`   varchar(32) NOT NULL,
   `prospect` varchar(32) NULL,    -- owner of this data, can be null when owner not known yet
-
   `name`        varchar(64) NULL, -- formname
-
   `formdata` text NOT NULL,
+
+  `created_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (`handle`),
   UNIQUE KEY `unique_handle` (`handle`),

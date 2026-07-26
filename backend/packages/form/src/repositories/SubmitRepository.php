@@ -113,10 +113,13 @@ class SubmitRepository
 
         // 3. Remap mnemonic keys → real attribute handles
         //    builder_forms.validate: { "yui16": { "attribute": "tag-firstname", ... }, ... }
+        //    The attribute value uses a type prefix (key-, field-, tag-) before the real handle.
+        //    e.g. "key-email" → "email", "field-lastname" → "lastname", "tag-newsletter" → "newsletter"
         $contact = [];
         foreach ($form as $mnemonic => $value) {
             if (isset($mnemonicMap[$mnemonic]['attribute'])) {
-                $attributeHandle        = $mnemonicMap[$mnemonic]['attribute'];
+                $prefixed        = $mnemonicMap[$mnemonic]['attribute']; // e.g. "key-email"
+                $attributeHandle = (string) substr($prefixed, (int) strpos($prefixed, '-') + 1); // → "email"
                 $contact[$attributeHandle] = $value;
             }
         }
@@ -129,13 +132,22 @@ class SubmitRepository
         }
 
         // 4. Delegate to ContactRepository to upsert prospect + accu_* tables
-        $result = $this->contactRepository->importContacts($tenant, [$contact]);
+        $result         = $this->contactRepository->importContacts($tenant, [$contact]);
+        $prospectHandle = $result['prospectHandles'][0] ?? null;
+
+        // 5. Link the resolved prospect back to the puls_forms row
+        if ($prospectHandle) {
+            $this->tenantPdo
+                ->prepare('UPDATE puls_forms SET prospect = :prospect WHERE handle = :handle')
+                ->execute([':prospect' => $prospectHandle, ':handle' => $handle]);
+        }
 
         return [
             'status'   => 'success',
             'message'  => "Form submission '{$handle}' processed successfully.",
             'handle'   => $handle,
             'tenant'   => $tenant,
+            'prospect' => $prospectHandle,
             'imported' => $result['imported'],
             'errors'   => $result['errors'],
         ];

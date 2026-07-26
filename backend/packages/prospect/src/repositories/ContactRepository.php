@@ -31,8 +31,9 @@ class ContactRepository
         // e.g. ['firstname' => ['accu' => 'word', 'slot' => 3, ...], ...]
         $attributes = $this->loadAttributes();
 
-        $imported = 0;
-        $errors   = [];
+        $imported       = 0;
+        $errors         = [];
+        $prospectHandles = [];
 
         foreach ($contacts as $contact) {
             try {
@@ -43,7 +44,8 @@ class ContactRepository
                 }
 
                 // 1. Upsert prospect row
-                $prospectHandle = $this->upsertProspect($tenant, $contact);
+                $prospectHandle    = $this->upsertProspect($tenant, $contact);
+                $prospectHandles[] = $prospectHandle;
 
                 // 2. Build column maps for each accumulator table
                 $words = [];  // ['word_3' => 'Joeri', ...]
@@ -98,7 +100,8 @@ class ContactRepository
             }
         }
 
-        return ['imported' => $imported, 'errors' => $errors];
+        return ['imported' => $imported, 'errors' => $errors, 'prospectHandles' => $prospectHandles];
+
     }
 
     // -------------------------------------------------------------------------

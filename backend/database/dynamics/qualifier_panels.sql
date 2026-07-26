@@ -3,8 +3,6 @@ CREATE TABLE `qualifier_panels` (
   `order`       int NOT NULL  DEFAULT 1, -- also slot in result_{type}
   `type`        varchar(32) NOT NULL, -- qualifier type: segments, scores, facits, funnels, reports
 
-
-
   `created_by`  varchar(16) NULL DEFAULT 'system',
   `created_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

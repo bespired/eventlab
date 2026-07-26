@@ -1,8 +1,9 @@
 CREATE TABLE `puls_signals` (
   `handle`   varchar(32) NOT NULL,
   `prospect` varchar(32) NOT NULL, -- owner of this data
-
   `bucket`   varchar(64) NOT NULL, -- bucketname
+
+  `created_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (`handle`),
   UNIQUE KEY `unique_handle` (`handle`),
