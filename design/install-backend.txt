@@ -2,7 +2,7 @@ INSTALL BACKEND
 
 is docker running?
 
-> cd ~/Projects/eventlab/backend
+> cd ~/Projects/eventlab/docker
 > docker compose build
 > docker compose up -d
 
@@ -74,8 +74,5 @@ or in termimal:
 > curl --location 'http://localhost:8000/index.php' \
   	   --data '{ "package": "system", "controller": "test", "action": "server" }'
 
-or with the run command and a json in /configs.
-
-> php run.php handle
 
 
