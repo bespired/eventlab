@@ -1,4 +1,4 @@
-<script>
+
 document.querySelectorAll('[data-tenant]').forEach(form => {
     const submitBtn     = form.querySelector('button.btn-gui');
     const disablerInput = form.querySelector('[data-disabler]');
@@ -76,4 +76,4 @@ document.querySelectorAll('[data-tenant]').forEach(form => {
     });
 
 });
-</script>
+

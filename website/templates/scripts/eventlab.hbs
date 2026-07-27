@@ -1,0 +1,66 @@
+<script>
+(() => {
+	const encodeUtf8Base64 = (str) => {
+		const bytes = new TextEncoder().encode(str);
+		let bin = '';
+		for (const b of bytes) bin += String.fromCharCode(b);
+		return btoa(bin);
+	};
+
+	const generateSession = () => {
+		const rndstr = window.btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32)))).replace(/[+/=]/g, "")
+		return Date.now().toString(36) + '-' + rndstr.substring(0, 16);
+	};
+
+	const isToday = (timestampMs) => {
+		return new Date(timestampMs).toDateString() === new Date().toDateString();
+	};
+
+	let session = localStorage.getItem("session");
+
+	if (session !== null) {
+		const creationTimestamp = parseInt(session.split('-')[0], 36);
+		if (isNaN(creationTimestamp) || !isToday(creationTimestamp)) {
+			session = null
+		}
+	}
+
+	if (session === null) {
+		session = generateSession();
+		localStorage.setItem("session", session);
+	}
+
+	const initiation = {
+		ses: session,
+		pid: localStorage.getItem("eventlab"),
+		href: window.location.href,
+		bye: '👋'
+	}
+	const payload = {
+		package: "visit",
+        controller: "session",
+        action: "visit",
+        init: encodeUtf8Base64(JSON.stringify(initiation))
+	};
+
+    fetch('/_', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: true // Keeps request alive even if tab closes or navigates away
+    })
+    .then(res => res.ok ? res.json() : Promise.reject(res))
+    .then(data => {
+        if (data.status === 'success') {
+        	localStorage.setItem("eventlab", data.handle)
+        	console.log("Storing the prospect id:", data.handle)
+        }else{
+            console.log("Weird response from eventlab.")
+        }
+    })
+    .catch(err => {
+    	console.log("Error in eventlab initiation.")
+    });
+
+})();
+</script>

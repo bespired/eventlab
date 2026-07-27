@@ -1,4 +1,5 @@
 <?php
+
 namespace EventLab\Core\Services;
 
 use EventLab\Core\Support\Base62Converter;
@@ -10,11 +11,11 @@ use EventLab\Core\Support\Base62Converter;
 class HandleFactory
 {
     private array $tables = [
-
         'accu_attributes'  => 'aa',
         'accu_bits'        => 'ab',
         'accu_tupples'     => 'at',
         'accu_words'       => 'aw',
+        'accu_texts'       => 'ax',
         'builder_pages'    => 'bp',
         'builder_forms'    => 'bf',
         'builder_sections' => 'bs',

@@ -14,6 +14,8 @@ VALUES
   ('birthday',   'word', 8, 'field', 'sys', 'Birthday',    'date',   NULL),
   ('passingday', 'word', 9, 'field', 'sys', 'Passingday',  'date',   NULL),
 
+  ('comment',    'text', 1, 'field', 'sys', 'Comment',     'text',   NULL),
+
   ('newsletter', 'bit',  1, 'tag', 'sys', 'Newsletter',    'bool',   NULL),
 
   ('marketing',  'tupp', 1, 'consent', 'sys', 'Marketing consent', 'tupple', NULL),

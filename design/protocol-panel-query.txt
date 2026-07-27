@@ -21,7 +21,6 @@ PROTOCOL PANEL QUERY
 
 	}
 
-
 }
 
 //  do we need ATTACHED differ from WAS_ATTACHED ?

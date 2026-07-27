@@ -3,6 +3,8 @@ CREATE TABLE `puls_signals` (
   `prospect` varchar(32) NOT NULL, -- owner of this data
   `bucket`   varchar(64) NOT NULL, -- bucketname
 
+  `on_visit` varchar(32) NOT NULL, -- visit handle
+
   `created_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (`handle`),

@@ -1,6 +1,7 @@
 CREATE TABLE `puls_events` (
   `handle`   varchar(32) NOT NULL,
   `prospect` varchar(32) NOT NULL, -- owner of this data
+
   `on_visit` varchar(32) NOT NULL, -- what visit did this happen
 
   `category` varchar(64) NOT NULL, -- matomo category

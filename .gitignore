@@ -13,3 +13,9 @@ Thumbs.db
 
 # Env files
 .env
+
+# Php files
+.php-cs-fixer.cache
+
+# Affinity
+*~lock~

@@ -2,7 +2,8 @@ CREATE TABLE `site_urls` (
   `handle`      varchar(32) NOT NULL,
 
   `url`         varchar(256) NOT NULL,
-  `type`        varchar(24)  NULL DEFAULT "page",  -- page or redirect
+  `type`        varchar(24)  NULL DEFAULT "page",  -- page or redirect or deleted
+  `page`        varchar(32)  NULL,                 -- if page, what page, handle
 
   `redirect`    varchar(24)  NULL DEFAULT NULL,    -- 301, 302 or ...
   `destination` varchar(256)  NULL DEFAULT NULL,   -- redirect where to
@@ -11,7 +12,6 @@ CREATE TABLE `site_urls` (
 
   PRIMARY KEY (`handle`),
   UNIQUE KEY `unique_handle` (`handle`)
-
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

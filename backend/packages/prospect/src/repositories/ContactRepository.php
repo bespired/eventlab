@@ -21,9 +21,9 @@ class ContactRepository
     /**
      * Import an array of contact arrays into the tenant DB.
      *
-     * @param  string $tenant
-     * @param  array  $contacts  Each element is an associative array of field => value.
-     * @return array  ['imported' => int, 'errors' => array]
+     * @param array $contacts each element is an associative array of field => value
+     *
+     * @return array ['imported' => int, 'errors' => array]
      */
     public function importContacts(string $tenant, array $contacts): array
     {
@@ -31,14 +31,14 @@ class ContactRepository
         // e.g. ['firstname' => ['accu' => 'word', 'slot' => 3, ...], ...]
         $attributes = $this->loadAttributes();
 
-        $imported       = 0;
-        $errors         = [];
+        $imported        = 0;
+        $errors          = [];
         $prospectHandles = [];
 
         foreach ($contacts as $contact) {
             try {
                 $email = $contact['email'] ?? null;
-                if (! $email) {
+                if (!$email) {
                     $errors[] = ['contact' => $contact, 'error' => 'Missing email — skipped'];
                     continue;
                 }
@@ -48,12 +48,13 @@ class ContactRepository
                 $prospectHandles[] = $prospectHandle;
 
                 // 2. Build column maps for each accumulator table
+                $texts = [];  // ['text_1' => 'Very long piece of text', ...]
                 $words = [];  // ['word_3' => 'Joeri', ...]
                 $bits  = [];  // ['bit_1' => 1, 'time_1' => '2026-01-01', ...]
                 $tupps = [];  // ['tupp_1' => 'opt-in', 'time_1' => '2026-01-01', ...]
 
                 foreach ($contact as $key => $rawValue) {
-                    if (! isset($attributes[$key])) {
+                    if (!isset($attributes[$key])) {
                         continue; // Not a known attribute — skip
                     }
 
@@ -62,18 +63,22 @@ class ContactRepository
                     $slot = (int) $attr['slot'];
 
                     switch ($accu) {
+                        case 'text':
+                            $texts["text_{$slot}"] = (string) $rawValue;
+                            break;
+
                         case 'word':
                             $words["word_{$slot}"] = (string) $rawValue;
                             break;
 
                         case 'bit':
-                            [$bitVal, $timeVal] = $this->parseBit($rawValue);
+                            [$bitVal, $timeVal]   = $this->parseBit($rawValue);
                             $bits["bit_{$slot}"]  = $bitVal;
                             $bits["time_{$slot}"] = $timeVal;
                             break;
 
                         case 'tupp':
-                            [$tuppVal, $timeVal] = $this->parseTupp($rawValue);
+                            [$tuppVal, $timeVal]   = $this->parseTupp($rawValue);
                             $tupps["tupp_{$slot}"] = $tuppVal;
                             $tupps["time_{$slot}"] = $timeVal;
                             break;
@@ -81,13 +86,16 @@ class ContactRepository
                 }
 
                 // 3. Upsert accumulator tables (only if data is present)
-                if (! empty($words)) {
+                if (!empty($texts)) {
+                    $this->upsertAccumulator('accu_texts', $prospectHandle, $texts);
+                }
+                if (!empty($words)) {
                     $this->upsertAccumulator('accu_words', $prospectHandle, $words);
                 }
-                if (! empty($bits)) {
+                if (!empty($bits)) {
                     $this->upsertAccumulator('accu_bits', $prospectHandle, $bits);
                 }
-                if (! empty($tupps)) {
+                if (!empty($tupps)) {
                     $this->upsertAccumulator('accu_tupples', $prospectHandle, $tupps);
                 }
 
@@ -101,7 +109,6 @@ class ContactRepository
         }
 
         return ['imported' => $imported, 'errors' => $errors, 'prospectHandles' => $prospectHandles];
-
     }
 
     // -------------------------------------------------------------------------
@@ -135,16 +142,15 @@ class ContactRepository
      *   'firstname infix lastname'  → join non-empty values with a space
      *   'firstname:1 lastname:1'    → first char of each (initials), e.g. "JK"
      *
-     * @param string $prospectHandle
-     * @param array  $attributes     Full attribute map (from loadAttributes)
-     * @param array  $writtenWords   ['word_3' => 'Joeri', ...] from the current import
+     * @param array $attributes   Full attribute map (from loadAttributes)
+     * @param array $writtenWords ['word_3' => 'Joeri', ...] from the current import
      */
     private function computeSystemAttributes(string $prospectHandle, array $attributes, array $writtenWords): void
     {
         // Collect all attributes that have rules defined
         $systemAttrs = array_filter(
             $attributes,
-            fn ($a) => $a['accu'] === 'word' && ! empty($a['rules'])
+            fn ($a) => $a['accu'] === 'word' && !empty($a['rules'])
         );
 
         if (empty($systemAttrs)) {
@@ -191,8 +197,8 @@ class ContactRepository
                 // Token may be 'Handle' or 'Handle:n'
                 if (str_contains($token, ':')) {
                     [$refHandle, $modifier] = explode(':', $token, 2);
-                    $cleanHandle = strtolower($refHandle);
-                    $val         = $handleToValue[$cleanHandle] ?? null;
+                    $cleanHandle            = strtolower($refHandle);
+                    $val                    = $handleToValue[$cleanHandle] ?? null;
                     if ($val !== null && $val !== '') {
                         $val     = $this->applyTokenModifier($val, $modifier);
                         $parts[] = $this->applyTokenCasing($val, $refHandle);
@@ -206,7 +212,7 @@ class ContactRepository
                 }
             }
 
-            if (! empty($parts)) {
+            if (!empty($parts)) {
                 $col            = 'word_' . (int) $attr['slot'];
                 $val            = implode($glue, $parts);
                 $computed[$col] = $val;
@@ -218,11 +224,11 @@ class ContactRepository
             }
         }
 
-        if (! empty($computed)) {
+        if (!empty($computed)) {
             $this->upsertAccumulator('accu_words', $prospectHandle, $computed);
         }
 
-        if (! empty($prospectUpdates)) {
+        if (!empty($prospectUpdates)) {
             $setClause = implode(', ', array_map(fn ($c) => "`{$c}` = :{$c}", array_keys($prospectUpdates)));
             $sql       = "UPDATE `prospects` SET {$setClause}, `updated_at` = NOW() WHERE `handle` = :prospect_handle";
             $params    = [':prospect_handle' => $prospectHandle];
@@ -245,9 +251,7 @@ class ContactRepository
      *   Title / Ucfirst (e.g. Firstname) -> mb_convert_case (capitalized)
      *   all lowercase (e.g. firstname)   -> mb_strtolower (undercast)
      *
-     * @param  string $value
-     * @param  string $rawHandle Token as written in rule (e.g. "Firstname", "firstname", "FIRSTNAME")
-     * @return string
+     * @param string $rawHandle Token as written in rule (e.g. "Firstname", "firstname", "FIRSTNAME")
      */
     private function applyTokenCasing(string $value, string $rawHandle): string
     {
@@ -279,10 +283,6 @@ class ContactRepository
      *
      * Supported modifiers:
      *   '<n>'  (integer) — take first n characters, e.g. ':1' → first character
-     *
-     * @param  string $value
-     * @param  string $modifier
-     * @return string
      */
     private function applyTokenModifier(string $value, string $modifier): string
     {
@@ -332,9 +332,8 @@ class ContactRepository
      * Upsert a single row into an accumulator table for the given prospect.
      * Only the columns present in $columns are included in the statement.
      *
-     * @param string $table         e.g. 'accu_words'
-     * @param string $prospectHandle
-     * @param array  $columns       ['word_3' => 'Joeri', ...]
+     * @param string $table   e.g. 'accu_words'
+     * @param array  $columns ['word_3' => 'Joeri', ...]
      */
     private function upsertAccumulator(string $table, string $prospectHandle, array $columns): void
     {
@@ -378,8 +377,8 @@ class ContactRepository
 
         if (str_contains($str, '::')) {
             [$boolPart, $timePart] = explode('::', $str, 2);
-            $bitVal  = in_array(strtolower(trim($boolPart)), ['1', 'true', 'yes'], true) ? 1 : 0;
-            $timeVal = trim($timePart) ?: null;
+            $bitVal                = in_array(strtolower(trim($boolPart)), ['1', 'true', 'yes'], true) ? 1 : 0;
+            $timeVal               = trim($timePart) ?: null;
 
             return [$bitVal, $timeVal];
         }

@@ -2,16 +2,16 @@
 
 /**
  * EventLab Public Website Engine
- * Server-Side Rendered (PHP + Handlebars Templates with Partials & Pages)
+ * Server-Side Rendered (PHP + Handlebars Templates with Partials & Pages).
  */
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 // Lightweight Handlebars template renderer with Partials support
 class HandlebarsRenderer
 {
     /**
-     * Render a Handlebars template string with given data context and template directory
+     * Render a Handlebars template string with given data context and template directory.
      */
     public static function render(string $template, array $context, string $templatesDir = ''): string
     {
@@ -30,15 +30,16 @@ class HandlebarsRenderer
                 $inner = $matches[2];
                 $items = self::getNestedValue($context, $key);
 
-                if (! is_array($items)) {
+                if (!is_array($items)) {
                     return '';
                 }
 
                 $output = '';
                 foreach ($items as $item) {
                     $itemContext  = is_array($item) ? array_merge($context, $item) : $context;
-                    $output      .= self::renderVariablesAndIfs($inner, $itemContext, $item);
+                    $output .= self::renderVariablesAndIfs($inner, $itemContext, $item);
                 }
+
                 return $output;
             },
             $template
@@ -49,7 +50,7 @@ class HandlebarsRenderer
     }
 
     /**
-     * Recursively resolve {{> partialName }} tags using partial files from templates directory
+     * Recursively resolve {{> partialName }} tags using partial files from templates directory.
      */
     private static function resolvePartials(string $template, string $templatesDir, int $depth = 0): string
     {
@@ -120,6 +121,7 @@ class HandlebarsRenderer
             function ($matches) use ($context, $currentItem) {
                 $key = trim($matches[1]);
                 $val = self::resolveValue($key, $context, $currentItem);
+
                 return htmlspecialchars((string) ($val ?? ''), ENT_QUOTES, 'UTF-8');
             },
             $template
@@ -152,6 +154,7 @@ class HandlebarsRenderer
                 return null;
             }
         }
+
         return $current;
     }
 }
@@ -161,6 +164,11 @@ class HandlebarsRenderer
 // -------------------------------------------------------------
 
 $dataContext = [
+    // system
+    'tenant'       => 'a0',
+    'baseUrl'      => 'website',
+
+    // content
     'siteTitle'    => 'EventLab Engine',
     'heroTitle'    => 'Empowering Hybrid Monorepo & Dynamic Event Architecture',
     'heroSubtitle' => 'Lightweight, framework-free PHP API engine paired with Handlebars SSR and high-performance Vue management GUI.',
@@ -206,14 +214,14 @@ $dataContext = [
 $templatesDir = __DIR__ . '/templates';
 $templatePath = $templatesDir . '/pages/index.hbs';
 
-if (! file_exists($templatePath)) {
+if (!file_exists($templatePath)) {
     // Fallback if index.hbs is at root of templates
     $templatePath = $templatesDir . '/index.hbs';
 }
 
-if (! file_exists($templatePath)) {
+if (!file_exists($templatePath)) {
     http_response_code(404);
-    echo "<h1>404 Template Not Found</h1>";
+    echo '<h1>404 Template Not Found</h1>';
     exit;
 }
 

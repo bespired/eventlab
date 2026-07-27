@@ -1,6 +1,8 @@
 CREATE TABLE `lut_referrers` (
   `handle`      varchar(32) NOT NULL,
 
+  `match`       varchar(255) NOT NULL,
+
   `created_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 

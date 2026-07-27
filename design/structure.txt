@@ -9,6 +9,22 @@
 ├── frontend/
 └── website/
 
+
+=== WEBSITE ===
+
+website/
+├── index.php
+├── packages/
+├── templates/
+│   └── (Handlebars / PHP layout templates)
+└── assets/
+    ├── css/
+    │   └── main.css        (or template-specific CSS)
+    ├── js/
+    │   └── main.js
+    └── img/
+        └── logo.svg
+
 === BACKEND/API ===
 
 backend/

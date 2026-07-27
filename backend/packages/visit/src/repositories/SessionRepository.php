@@ -1,12 +1,12 @@
 <?php
 
-namespace EventLab\Form\Repositories;
+namespace EventLab\Visit\Repositories;
 
 use EventLab\Core\Services\HandleFactory;
 use EventLab\Prospect\Repositories\ContactRepository;
 use PDO;
 
-class SubmitRepository
+class SessionRepository
 {
     private PDO $globalPdo;
     private PDO $tenantPdo;
@@ -50,28 +50,6 @@ class SubmitRepository
 
         return $handle;
     }
-
-    // use EventLab\Database\Helpers\QueryHelper;
-
-    // // 1. Get PDO from your manager
-    // $tenantPdo = $dbManager->getTenantConnection('tenant_acme');
-    // $globalPdo = $dbManager->getGlobalConnection();
-
-    // // 2. Wrap them in QueryHelpers
-    // $tenantDb = new QueryHelper($tenantPdo);
-    // $globalDb = new QueryHelper($globalPdo);
-
-    // // 3. Your repetitive INSERT statement becomes this single expressive line:
-    // $tenantDb->insert('puls_forms', [
-    //     'handle'   => $handle,
-    //     'prospect' => $prospect,
-    //     'name'     => $name,
-    //     'formdata' => json_encode($formData),
-    // ]);
-
-    // // Need to update global logs or tenant data?
-    // $globalDb->insert('audit_logs', ['action' => 'form_submitted']);
-    // $tenantDb->update('puls_forms', ['name' => 'Updated Name'], ['handle' => $handle]);
 
     /**
      * Get a form submission by handle from tenant database.
@@ -133,8 +111,7 @@ class SubmitRepository
         foreach ($form as $mnemonic => $value) {
             if (isset($mnemonicMap[$mnemonic]['attribute'])) {
                 $prefixed                  = $mnemonicMap[$mnemonic]['attribute']; // e.g. "key-email"
-                $parts                     = explode('-', $prefixed, 2);
-                $attributeHandle           = $parts[1] ?? $parts[0];
+                $attributeHandle           = (string) substr($prefixed, (int) strpos($prefixed, '-') + 1); // → "email"
                 $contact[$attributeHandle] = $value;
             }
         }

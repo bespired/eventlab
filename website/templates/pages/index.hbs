@@ -6,8 +6,13 @@
     <title>{{siteTitle}} - Next-Gen Event Engine</title>
     <meta name="description" content="Framework-free event management, registration, and dynamic API engine.">
 
-    {{> base }}
-    {{> form }}
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <!-- <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700,800|plus-jakarta-sans:400,500,600,700" rel="stylesheet" /> -->
+
+    <link rel="stylesheet" href="{{baseUrl}}/assets/css/base.css">
+    <link rel="stylesheet" href="{{baseUrl}}/assets/css/{{tenant}}-form.css">
+
+    <script src="{{baseUrl}}/assets/js/eventlab.js" defer></script>
 
 </head>
 <body>
@@ -80,6 +85,6 @@
     </main>
 
     {{> footer }}
-    {{> formsubmits }}
+    <script src="{{baseUrl}}/assets/js/formsubmit.js"></script>
 </body>
 </html>

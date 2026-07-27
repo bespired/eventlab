@@ -1,4 +1,4 @@
-CREATE TABLE `lut_locations` (
+CREATE TABLE `lut_devices` (
   `handle`      varchar(32) NOT NULL,
 
   `match`       varchar(255) NOT NULL,
