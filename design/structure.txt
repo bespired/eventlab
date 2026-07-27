@@ -1,16 +1,67 @@
+=== ROOT ===
+
+/
+├── .htaccess
+│
+├── backend/
+├── design/
+├── docker/
+├── frontend/
+└── website/
+
+=== BACKEND/API ===
+
 backend/
 ├── config/
-│   └── database.php
+│   └── secrets/
+│
+├── database/
+│   ├── builders/
+│   ├── dynamics/
+│   ├── globals/
+│   ├── seeds/
+│   └── order.php
+│
+├── design/
+│
 ├── packages/
+│   ├── auth/
+│   │   └── src/
+│   │       ├── services/
+│   │       │   └── AuthorizationService.php
+│   │       └── support/
+│   │           └── Guard.php
+│   ├── core/
+│   │   └── src/
+│   │       ├── services/
+│   │       │   ├── HandleFactory.php
+│   │       │   └── SecretsLoader.php
+│   │       └── support/
+│   │           ├── Base62Converter.php
+│   │           └── StringUtils.php
 │   ├── database/
 │   │   └── src/
-│   │       └── Connection.php
+│   │       └── managers/
+│   │           └── DatabaseConnectionManager.php
+│   ├── form/
+│   │   └── src/
+│   │       ├── controllers/
+│   │       │   └── SubmitController.php
+│   │       └── repositories/
+│   │           └── SubmitRepository.php
+│   ├── prospect/
+│   │       ├── controllers/
+│   │       │   └── ContactController.php
+│   │       └── repositories/
+│   │           └── ContactRepository.php
 │   └── system/
 │       └── src/
-│           ├── Controllers/
-│           │   └── ProjectController.php
-│           └── Repositories/
-│               └── SystemRepository.php
-├── index.php
+│           ├── controllers/
+│           │   └── InstallController.php
+│           └── repositories/
+│               └── InstallRepository.php
+├── public/
+│   └── index.php
+│
 ├── run.php
-└── autoload.php
+└── autoloader.php
