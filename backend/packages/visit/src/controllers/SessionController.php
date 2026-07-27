@@ -1,7 +1,7 @@
 <?php
-
 namespace EventLab\Visit\Controllers;
 
+use EventLab\Core\Services\SimpleAgent;
 use Exception;
 
 class SessionController
@@ -15,7 +15,7 @@ class SessionController
                 case 'visit':
                     return $this->handleIncoming($args);
 
-               default:
+                default:
                     if (function_exists('http_response_code')) {
                         http_response_code(400);
                     }
@@ -41,14 +41,18 @@ class SessionController
     private function handleIncoming($args): string
     {
         $init = $args->init ?? null;
-        if (!$init) {
+        if (! $init) {
             return json_encode(['status' => 'error', 'message' => 'Internal Server Error']);
         }
 
         $json = base64_decode($init);
         $init = json_decode($json);
 
+        // $agent = $_SERVER['HTTP_USER_AGENT'];
+        $simple = new SimpleAgent();
+
         return json_encode([
+            'browser' => $simple->getSimpleInfo(),
             'args'    => $init,
             'status'  => 'success',
             'message' => 'handling the visit.',
