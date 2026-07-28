@@ -1,4 +1,5 @@
 <?php
+
 namespace EventLab\Core\Services;
 
 class SimpleAgent
@@ -13,7 +14,7 @@ class SimpleAgent
             return $this->operatingSystem($ua);
         }
 
-        return sprintf("%s;%s;%s",
+        return sprintf('%s;%s;%s',
             $this->agentBrowser($ua),
             $this->operatingSystem($ua),
             $this->agentDevice($ua),
@@ -38,7 +39,7 @@ class SimpleAgent
             'ipod'       => 'iOS',
         ];
 
-        $os = "";
+        $os = '';
         foreach ($checks as $key => $value) {
             $os = strpos($lower, $key) > 0 ? $value : $os;
         }
@@ -56,6 +57,9 @@ class SimpleAgent
 
     public function agentDevice(string $ua)
     {
+        if ($ua === null) {
+            $ua = $_SERVER['HTTP_USER_AGENT'];
+        }
         $lower = strtolower($ua);
 
         $checks = [
@@ -72,13 +76,12 @@ class SimpleAgent
             'mini'       => 'Mobile',
         ];
 
-        $device = "Desktop";
+        $device = 'Desktop';
         foreach ($checks as $key => $value) {
             $device = strpos($lower, $key) > -1 ? $value : $device;
         }
 
         return $device;
-
     }
 
     public function agentBrowser(string $ua)
@@ -93,16 +96,16 @@ class SimpleAgent
             'opr'    => 'Opera',
         ];
 
-        if (! strpos($lower, ' ')) {
+        if (!strpos($lower, ' ')) {
             return $ua;
         }
 
         $finder = null;
         foreach ($checks as $key => $value) {
-            $finder = ! ! strpos($lower, $key) ? $key : $finder;
+            $finder = (bool) strpos($lower, $key) ? $key : $finder;
         }
 
-        if (! $finder) {
+        if (!$finder) {
             return 'Unkown';
         }
 
@@ -115,7 +118,6 @@ class SimpleAgent
 
         return $browser;
     }
-
 }
 
 // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36

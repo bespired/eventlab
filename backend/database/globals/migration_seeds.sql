@@ -1,4 +1,4 @@
-CREATE TABLE `migrationseeds` (
+CREATE TABLE `migration_seeds` (
   `type` varchar(12) NOT NULL, -- migration or seed
   `db` varchar(64) NOT NULL,   -- name of the DB the migration has run into
 

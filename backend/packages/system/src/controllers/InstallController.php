@@ -139,7 +139,8 @@ class InstallController
                     }
                     foreach ($projectsData as $project) {
                         $projectTenant = $project->tenant ?? $tenant;
-                        $res           = $this->installProject($projectTenant, $project, $dbManager, $globalPdo, $adminsData);
+
+                        $res = $this->installProject($projectTenant, $project, $dbManager, $globalPdo, $adminsData);
 
                         $results['projects'][] = $res;
                     }
@@ -188,6 +189,7 @@ class InstallController
             return json_encode([
                 'status'        => 'error',
                 'message'       => 'Internal Server Error',
+                'table'         => '',
                 'error_details' => $e->getMessage(),
             ], JSON_PRETTY_PRINT);
         }

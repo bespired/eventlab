@@ -3,7 +3,7 @@ CREATE TABLE `accu_words` (
   `created_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`  datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
--- loop 64
+-- loop 48
   `word_@` varchar(255) NULL DEFAULT NULL,
 --
 

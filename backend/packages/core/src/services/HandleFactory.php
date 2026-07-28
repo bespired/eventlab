@@ -46,9 +46,9 @@ class HandleFactory
 
     private Base62Converter $converter;
 
-    public function __construct(Base62Converter $converter)
+    public function __construct(?Base62Converter $converter = null)
     {
-        $this->converter = $converter;
+        $this->converter = $converter ?? new EventLab\Core\Support\Base62Converter();
     }
 
     public function create(string $table = 'unknown', string $tenant = '', ?string $idx = null): string

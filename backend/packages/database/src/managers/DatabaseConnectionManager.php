@@ -2,6 +2,7 @@
 
 namespace EventLab\Database\Managers;
 
+use EventLab\Database\Helpers\QueryHelper;
 use PDO;
 
 class DatabaseConnectionManager
@@ -13,6 +14,22 @@ class DatabaseConnectionManager
     public function __construct(array $secrets)
     {
         $this->secrets = $secrets;
+    }
+
+    /**
+     * Get a QueryHelper for the global database.
+     */
+    public function getGlobalQueryHelper(): QueryHelper
+    {
+        return new QueryHelper($this->getGlobalConnection());
+    }
+
+    /**
+     * Get a QueryHelper for a specific tenant database.
+     */
+    public function getTenantQueryHelper(string $dbName): QueryHelper
+    {
+        return new QueryHelper($this->getTenantConnection($dbName));
     }
 
     /**

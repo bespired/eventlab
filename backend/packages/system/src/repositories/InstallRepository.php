@@ -69,7 +69,8 @@ class InstallRepository
                             $results['global']['migrations']++;
                         } catch (\PDOException $e) {
                             if (strpos($e->getMessage(), 'already exists') === false) {
-                                throw $e;
+                                throw new \PDOException("Error executing migration [{$name}]: " . $e->getMessage(), (int) $e->getCode(), $e);
+                                // throw $e;
                             }
                         }
                     }
@@ -91,7 +92,8 @@ class InstallRepository
                         } catch (\PDOException $e) {
                             if (strpos($e->getMessage(), 'Duplicate entry') === false
                                 && strpos($e->getMessage(), 'already exists') === false) {
-                                throw $e;
+                                throw new \PDOException("Error executing migration [{$name}]: " . $e->getMessage(), (int) $e->getCode(), $e);
+                                // throw $e;
                             }
                         }
                     }
@@ -143,7 +145,8 @@ class InstallRepository
                                 $results['tenant']['migrations']++;
                             } catch (\PDOException $e) {
                                 if (strpos($e->getMessage(), 'already exists') === false) {
-                                    throw $e;
+                                    throw new \PDOException("Error executing migration [{$name}]: " . $e->getMessage(), (int) $e->getCode(), $e);
+                                    // throw $e;
                                 }
                             }
                         }
@@ -218,7 +221,7 @@ class InstallRepository
         }
 
         try {
-            $stmt = $this->globalPdo->prepare('SELECT `name` FROM `migrationseeds` WHERE `db` = :db');
+            $stmt = $this->globalPdo->prepare('SELECT `name` FROM `migration_seeds` WHERE `db` = :db');
             $stmt->execute([':db' => $dbName]);
             $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
@@ -230,18 +233,18 @@ class InstallRepository
     }
 
     /**
-     * Record a successfully-run file in the migrationseeds tracking table for the target database.
-     * Silently ignores failures (e.g. if migrationseeds itself was just created this run).
+     * Record a successfully-run file in the migration_seeds tracking table for the target database.
+     * Silently ignores failures (e.g. if migration_seeds itself was just created this run).
      */
     private function recordMigration(string $type, string $dbName, string $name): void
     {
         try {
             $stmt = $this->globalPdo->prepare(
-                'INSERT IGNORE INTO `migrationseeds` (`type`, `db`, `name`) VALUES (:type, :db, :name)'
+                'INSERT IGNORE INTO `migration_seeds` (`type`, `db`, `name`) VALUES (:type, :db, :name)'
             );
             $stmt->execute([':type' => $type, ':db' => $dbName, ':name' => $name]);
         } catch (\PDOException $e) {
-            // Silently ignore – migrationseeds may not exist on the very first run
+            // Silently ignore – migration_seeds may not exist on the very first run
         }
     }
 

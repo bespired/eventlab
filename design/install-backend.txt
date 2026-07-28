@@ -9,7 +9,7 @@ is docker running?
 POSTMAN TEST BACKEND
 
 Wrong protocol:
-GET  http://localhost:8000/index.php
+GET  http://localhost/_
 
 ==>
 {
@@ -18,7 +18,7 @@ GET  http://localhost:8000/index.php
 }
 
 Wrong datapackage:
-POST  http://localhost:8000/index.php
+POST  http://localhost/_
 
 ==>
 {
@@ -27,7 +27,7 @@ POST  http://localhost:8000/index.php
 }
 
 Works:
-POST  http://localhost:8000/index.php
+POST  http://localhost/_
 {
     "package": "system",
     "controller": "test",
@@ -40,7 +40,7 @@ POST  http://localhost:8000/index.php
 }
 
 Works:
-POST  http://localhost:8000/index.php
+POST  http://localhost/_
 {
     "package": "system",
     "controller": "test",
@@ -54,7 +54,7 @@ POST  http://localhost:8000/index.php
 }
 
 Works:
-POST  http://localhost:8000/index.php
+POST  http://localhost/_
 {
     "package": "system",
     "controller": "test",
@@ -70,9 +70,7 @@ POST  http://localhost:8000/index.php
 }
 
 
-or in termimal:
-> curl --location 'http://localhost:8000/index.php' \
-  	   --data '{ "package": "system", "controller": "test", "action": "server" }'
-
+next step:
+install database
 
 

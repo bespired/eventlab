@@ -1,0 +1,9 @@
+INSTALL DATABASE
+
+see install-backend.txt to setup server
+is docker running?
+
+edit ~/Projects/eventlab/backend/config.json to your needs.
+
+> cd ~/Projects/eventlab/backend
+> php run.php install

@@ -4,8 +4,8 @@ $allMigrations = [
     'globals'  => [
         // MIGRATION
 
-        '/globals/migrationseeds.sql'  => 'table',
-        '/globals/projects.sql'        => 'table',
+        '/globals/migration_seeds.sql'  => 'table',
+        '/globals/projects.sql'         => 'table',
 
         '/globals/cache.sql'           => 'table',
 
@@ -45,6 +45,7 @@ $allMigrations = [
         '/dynamics/puls_signals.sql'     => 'table',
         '/dynamics/puls_visits.sql'      => 'table',
         '/dynamics/puls_events.sql'      => 'table',
+        '/dynamics/puls_pages.sql'       => 'table',
 
         '/dynamics/accu_bits.sql'        => 'table',
         '/dynamics/accu_tupples.sql'     => 'table',
