@@ -2,21 +2,20 @@
 
 namespace EventLab\Visit\Services;
 
-use EventLab\Database\Services\LutAgent;
-use EventLab\Database\Services\LutDevice; // Assuming LutDevice follows the same pattern
+use EventLab\Core\Services\HandleFactory;
+use EventLab\Core\Services\SimpleAgent;
+use EventLab\Database\Services\LutHandler;
 
 class IncomingVisitHandler
 {
-    private LutAgent $lutAgent;
-    private LutDevice $lutDevice;
+    private LutHandler $lutHandler;
 
-    public function __construct(LutAgent $lutAgent, LutDevice $lutDevice)
+    public function __construct($globalPdo)
     {
-        $this->lutAgent  = $lutAgent;
-        $this->lutDevice = $lutDevice;
+        $this->lutHandler = new LutHandler($globalPdo, new HandleFactory());
     }
 
-    private function handleIncoming(object $args): string
+    public function handleIncoming(object $args): string
     {
         $init = $args->init ?? null;
         if (!$init) {
@@ -27,19 +26,13 @@ class IncomingVisitHandler
         $payload = json_decode($json);
 
         $simple  = new SimpleAgent();
-        $browser = $simple->getSimpleInfo();
 
         // Pass parsed info or user-agent string into injected service handlers
-        $lutAgentHandle  = $this->lutAgent->handle($browser);
-        $lutDeviceHandle = $this->lutDevice->handle($simple->agentDevice());
+        $agent          = $simple->getSimpleInfo();
+        $lutAgentHandle = $this->lutHandler->handle('lut_agents', $agent);
 
-        return json_encode([
-            'browser'    => $browser,
-            'args'       => $payload,
-            'status'     => 'success',
-            'message'    => 'handling the visit.',
-            'handle'     => $lutAgentHandle,
-            'device_lut' => $lutDeviceHandle,
-        ], JSON_PRETTY_PRINT);
+        // and all the other stuff that needs to be done ...
+
+        return $lutAgentHandle;
     }
 }

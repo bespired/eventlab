@@ -2,6 +2,9 @@
 
 namespace EventLab\Visit\Controllers;
 
+use EventLab\Core\Services\SecretsLoader;
+use EventLab\Database\Helpers\QueryTracker;
+use EventLab\Database\Managers\DatabaseConnectionManager;
 use EventLab\Visit\Services\IncomingVisitHandler;
 use Exception;
 
@@ -34,6 +37,8 @@ class SessionController
             return json_encode([
                 'status'        => 'error',
                 'message'       => 'Internal Server Error',
+                'failed_query'  => QueryTracker::$lastSql,
+                'query_params'  => QueryTracker::$lastParams,
                 'error_details' => $e->getMessage(),
             ], JSON_PRETTY_PRINT);
         }
@@ -46,33 +51,21 @@ class SessionController
             return json_encode(['status' => 'error', 'message' => 'Internal Server Error']);
         }
 
+        $secrets   = SecretsLoader::load();
+        $dbManager = new DatabaseConnectionManager($secrets);
+        $globalPdo = $dbManager->getGlobalConnection();
+
         $json = base64_decode($init);
         $init = json_decode($json);
 
-        // 1. Create shared base objects
-        $factory   = new EventLab\Core\Services\HandleFactory();
-
-        // 2. Create services (passing PDO and Factory)
-        $lutAgent  = new EventLab\Database\Services\LutAgent($globalPdo, $factory);
-        $lutDevice = new EventLab\Database\Services\LutDevice($globalPdo, $factory);
-
-        // 3. Create your handler
-        $handler   = new EventLab\Controllers\IncomingVisitHandler($lutAgent, $lutDevice);
-
-        // 4. Run your method!
-        $response  = $handler->handleIncoming($args);
-
-        // $handler = new IncomingVisitHandler();
-        // $handler->handleIncoming($args);
-
-        // $agent = $_SERVER['HTTP_USER_AGENT'];
+        $handler  = new IncomingVisitHandler($globalPdo);
+        $response = $handler->handleIncoming($args);
 
         return json_encode([
-            'browser' => $browser,
             'args'    => $init,
             'status'  => 'success',
             'message' => 'handling the visit.',
-            'handle'  => 'a0pp-12345678-12345678',
+            'handle'  => $response,
         ], JSON_PRETTY_PRINT);
     }
 

@@ -21,8 +21,12 @@ class SimpleAgent
         );
     }
 
-    public function operatingSystem(string $ua)
+    public function operatingSystem(?string $ua = null)
     {
+        if ($ua === null) {
+            $ua = $_SERVER['HTTP_USER_AGENT'];
+        }
+
         $lower = strtolower($ua);
         $parts = explode(' ', $ua);
 
@@ -55,7 +59,7 @@ class SimpleAgent
         return $os;
     }
 
-    public function agentDevice(string $ua)
+    public function agentDevice(?string $ua = null)
     {
         if ($ua === null) {
             $ua = $_SERVER['HTTP_USER_AGENT'];
@@ -84,8 +88,12 @@ class SimpleAgent
         return $device;
     }
 
-    public function agentBrowser(string $ua)
+    public function agentBrowser(?string $ua = null)
     {
+        if ($ua === null) {
+            $ua = $_SERVER['HTTP_USER_AGENT'];
+        }
+
         $lower = strtolower($ua);
         $parts = explode(' ', $ua);
 
