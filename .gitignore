@@ -19,6 +19,7 @@ Thumbs.db
 
 # Affinity
 *~lock~
+*.af
 
 # Node
 */node_modules/
