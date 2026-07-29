@@ -1,0 +1,28 @@
+
+if session can be found:
+	- store page on pid
+	- update last visit of pid
+	- return pid.
+
+if href has elmi but no pid in init:
+	- load npid from prospects via elmi
+	- store visit on npid
+	- store page on npid
+	- return npid.
+
+if href has elmi and pid in init:
+	- load npid from prospects via elmi
+	- if pid = npid:
+	    - known contact
+	    - store visit on npid
+	    - store page on npid
+	    - return npid.
+	- if pid != npid:
+		- prospect match contact
+		- needs more thinking
+
+if pid in init: (but unknown session)
+
+
+
+if pid (prospect-id) can be found

@@ -8,9 +8,12 @@ RewriteRule ^_/(.*)$ backend/public/index.php [L,QSA]
 RewriteRule ^_$ backend/public/index.php [L,QSA]
 
 # 2. Vue Frontend Application (Production dist & SPA fallback for /app)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^app/(.*)$ frontend/dist/index.html [L]
-RewriteRule ^app$ frontend/dist/index.html [L]
+# Serve static assets directly from frontend/dist/
+RewriteRule ^app/assets/(.*)$ frontend/dist/assets/$1 [L]
+RewriteRule ^app/favicon\.ico$ frontend/dist/favicon.ico [L]
+
+# Fallback all other SPA routes under /app to frontend/dist/index.html
+RewriteRule ^app(?:/.*)?$ frontend/dist/index.html [L]
 
 # 3. Public Website (Handlebars SSR)
 RewriteRule ^$ website/index.php [L,QSA]

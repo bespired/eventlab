@@ -1,0 +1,62 @@
+src/
+├── components/
+│   ├── base/                    # Shared, domain-agnostic primitive components
+│   │   ├── button/
+│   │   │   ├── ClickButton.vue
+│   │   │   ├── IconButton.vue
+│   │   │   └── ToggleButton.vue
+│   │   │
+│   │   ├── input/
+│   │   │   ├── TextInput.vue
+│   │   │   ├── NumberInput.vue
+│   │   │   ├── DateInput.vue
+│   │   │   ├── TextArea.vue
+│   │   │   ├── Checkbox.vue
+│   │   │   └── RadioButton.vue
+│   │   │
+│   │   ├── picker/            # Dedicated selection & picker primitives
+│   │   │   ├── ColorPicker.vue       # Swatches or wheel color selection
+│   │   │   ├── DateRangePicker.vue   # Start/end date calendar popup
+│   │   │   ├── ImageOptionPicker.vue # Selectable image tile grid
+│   │   │   ├── TagPicker.vue         # Tag input with add/remove chips
+│   │   │   └── SwatchPicker.vue      # Colored dots selection row
+│   │   │
+│   │   ├── panel/
+│   │   │   ├── BasePanel.vue
+│   │   │   └── FloatPanel.vue
+│   │   │
+│   │   └── modal/
+│   │       ├── ConfirmModal.vue
+│   │       ├── NoteModal.vue
+│   │       └── ToastContainer.vue
+│   │
+│   ├── templates/             # Pure structural wireframes (Slots only)
+│   │   ├── ThreeSplitTemplate.vue
+│   │   └── TwoSplitTemplate.vue
+│   │
+│   ├── layout/                # Global page layout elements
+│   │   ├── AppHeader.vue
+│   │   ├── AppSidebar.vue
+│   │   └── AppFooter.vue
+│   │
+│   ├── modal/                 # Reusable business/dialog modals (wraps BaseModal)
+│   │   ├── ConfirmModal.vue
+│   │   └── NoteModal.vue
+│   │
+│   ├── common/                # Multi-purpose, reusable business widgets
+│   │   ├── UserAvatar.vue
+│   │   └── NotificationBanner.vue
+│   │
+│   └── domain/                # Feature-specific components (e.g. forms/tables)
+│       ├── checkout/
+│       │   └── PaymentForm.vue
+│       └── user/
+│           └── UserProfileForm.vue
+│
+├── views/                     # Top-level page views (wired to Vue Router)
+│   ├── HomeView.vue
+│   └── CheckoutView.vue
+│
+└── composables/
+    └── useToast.vue
+

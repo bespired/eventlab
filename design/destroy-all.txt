@@ -1,9 +1,7 @@
-INSTALL DATABASE
+REMOVE ALL
 
-see install-backend.txt to setup server
 is docker running?
 
-edit ~/Projects/eventlab/backend/config.json to your needs.
 
-> cd ~/Projects/eventlab/backend
-> php run.php install
+> cd ~/Projects/eventlab/docker
+> docker compose down -v
