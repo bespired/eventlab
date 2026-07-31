@@ -1,0 +1,19 @@
+
+EventLab
+===
+
+Website
+
+CSS
+strict separation from:
+-- (responsive) Layout
+-- element design
+
+Assets
+-- visuals
+separation from:
+ - design elements
+ - illustrations
+ - movies
+
+-- scripts/css
