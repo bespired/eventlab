@@ -1,36 +1,23 @@
 <template>
-  <div class="app-layout">
-    <AppHeader @toggle-sidebar="sidebarOpen = !sidebarOpen" />
-    <AppSidebar :is-open="sidebarOpen" @close="sidebarOpen = false" />
-
-    <main class="app-main-content">
+  <component v-if="layout" :is="layout" :key="layout" />
+  <main v-else class="app-main-content" :key="layout" >
       <router-view />
-    </main>
-
-    <AppFooter />
-    <ToastContainer />
-  </div>
+  </main>
+  <toast-container />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+  import { computed, defineAsyncComponent } from 'vue'
+  import { useRoute } from 'vue-router';
 
-const sidebarOpen = ref(false)
+  const route = useRoute();
+
+  const layout = computed(() => {
+    const name = route.meta?.layout
+    if (!name) return null
+
+    return defineAsyncComponent(() =>
+      import(`@/components/templates/${name}.vue`)
+    )
+  })
 </script>
-
-<style scoped>
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--bg-app);
-}
-
-.app-main-content {
-  flex: 1;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-</style>
