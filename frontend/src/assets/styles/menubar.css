@@ -1,0 +1,7 @@
+.menu-bar{
+    padding: 20px 20px;
+}
+.menu-header{
+      color: var(--color-menu);
+      display: flex;
+}

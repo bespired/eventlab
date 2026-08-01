@@ -8,7 +8,7 @@
 
 <script setup>
   import { computed, defineAsyncComponent } from 'vue'
-  import { useRoute } from 'vue-router';
+  import { useRoute } from 'vue-router'
 
   const route = useRoute();
 

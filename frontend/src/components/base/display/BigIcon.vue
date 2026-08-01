@@ -28,5 +28,6 @@ const localImage = computed(() => { return `url(${assetsBaseUrl}svgicons/${props
     mask-mode: alpha;
     mask-position: center;
     mask-repeat: no-repeat;
+    transform: translateY(-.2em);
   }
 </style>

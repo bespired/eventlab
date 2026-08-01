@@ -1,76 +1,66 @@
 <template>
-  <aside class="side-menu">
-    <ul >
-      <li><big-icon name="menu-eventlab" />
-          <div class="menu-popup">Eventlab</div>
-      </li>
-      <li><big-icon name="menu-gauge" />
-          <div class="menu-popup">Dashboard</div>
-      </li>
-      <li><big-icon name="menu-segment" />
-          <div class="menu-popup">Analytics</div>
-      </li>
-      <li><big-icon name="menu-profile" />
-          <div class="menu-popup">Profile</div>
-      </li>
-      <li><big-icon name="menu-mail" />
-          <div class="menu-popup">Mailer</div>
-      </li>
-      <li><big-icon name="menu-rocket" />
-          <div class="menu-popup">Automation</div>
-      </li>
-      <li><big-icon name="menu-cog" />
-          <div class="menu-popup">Settings</div>
-      </li>
-    </ul>
-  </aside>
+    <aside class="side-menu">
+        <ul>
+            <li>
+                <router-link to="/" class="">
+                    <div class="menu-popup">Eventlab</div>
+                    <big-icon name="menu-eventlab" />
+                </router-link>
+            </li>
+            <li>
+                <router-link :to="`/${tenant}/dashboard`" :class="selectedRoute('dashboard')">
+                    <div class="menu-popup">Dashboard</div>
+                    <big-icon name="menu-gauge" />
+                </router-link>
+            </li>
+            <li>
+                <router-link :to="`/${tenant}/profiles`" :class="selectedRoute('profile')">
+                    <div class="menu-popup">Profiles</div>
+                    <big-icon name="menu-profile" />
+                </router-link>
+            </li>
+            <li>
+                <router-link :to="`/${tenant}/analytics`" :class="selectedRoute('analytics')">
+                    <div class="menu-popup">Analytics</div>
+                    <big-icon name="menu-segment" />
+                </router-link>
+            </li>
+            <li>
+                <router-link :to="`/${tenant}/mailer`" :class="selectedRoute('mailer')">
+                    <div class="menu-popup">Mailer</div>
+                    <big-icon name="menu-mail" />
+                </router-link>
+            </li>
+            <li>
+                <router-link :to="`/${tenant}/automation`" :class="selectedRoute('automation')">
+                    <div class="menu-popup">Automation</div>
+                    <big-icon name="menu-rocket" />
+                </router-link>
+            </li>
+            <li>
+                <router-link :to="`/${tenant}/settings`" :class="selectedRoute('setting')">
+                    <div class="menu-popup">Settings</div>
+                    <big-icon name="menu-cog" />
+                </router-link>
+            </li>
+        </ul>
+    </aside>
 </template>
 
 <script setup>
+  import { computed } from 'vue';
+  import { useRoute } from 'vue-router';
 
+  const route = useRoute();
+
+  const tenant = computed(() => {
+    return route.params.tenant || 'a0'
+  });
+
+  const selectedRoute = (word) => {
+    const parts = route.path.split('/').filter(Boolean);
+    const tenantIndex = parts.indexOf(tenant.value);
+    const afterTenant = parts.slice(tenantIndex + 1);
+    return afterTenant.includes(word) ? 'selected' : '';
+  };
 </script>
-
-<style>
-  .side-menu {
-    backdrop-filter: blur(3px);
-  }
-  .side-menu li {
-    display: flex;
-    position: relative;
-    font-size: 2.5em;
-    color: var(--color-menu);
-    height: 1em;
-    justify-self: center;
-    transition: color 200ms;
-    cursor: pointer;
-    margin-bottom: 0.2em;
-    .alpha-mask {
-       z-index: 1;
-    }
-    .menu-popup {
-        font-size: 1.1rem;
-        font-weight: 500;
-        line-height: 1;
-        position: absolute;
-
-        top: 10px;
-        left: -6px;
-        background: var(--color-menu);
-        color: white;
-        padding: 0 12px 3px 56px;
-        border-radius: 20px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 200ms;
-        z-index: 0;
-    }
-  }
-  .side-menu li:hover{
-    color: white;
-    .menu-popup {
-      opacity: 1;
-      z-index: 0;
-    }
-
-  }
-</style>
