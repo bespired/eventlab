@@ -8,6 +8,11 @@ a:-webkit-any-link {
     color: var(--color-menu);
 }
 
+.side-menu ul {
+    /*margin-top: auto;*/
+    margin-bottom: auto;
+}
+
 .side-menu li {
     display: flex;
     position: relative;
@@ -33,6 +38,7 @@ a:-webkit-any-link {
     }
 
     .alpha-mask {
+        transform: translateY(-.2em);
         z-index: 1;
     }
 
@@ -42,7 +48,7 @@ a:-webkit-any-link {
         line-height: 1;
         position: absolute;
 
-        top: 10px;
+        top: .4em;
         left: -6px;
         background: var(--color-menu-bg);
         color: var(--color-menu);

@@ -1,32 +1,30 @@
 <template>
-  <div style="display: flex; flex-direction: column; gap: 2rem;">
-    <NotificationBanner variant="success" message="Vue 3 SPA component library successfully initialized with Vite and unplugin-vue-components autoloading!" />
-
-    <BasePanel title="1. Button Primitives & Interactive Hover/Active Filters">
-      <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
-        Hover over buttons for <strong>+15% brightness</strong> and click for <strong>-15% brightness</strong> filters.
-      </p>
-      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
-        <ClickButton variant="primary" @click="notify('Primary Clicked!')">Primary Button</ClickButton>
-        <ClickButton variant="secondary" @click="notify('Secondary Clicked!')">Secondary Button</ClickButton>
-        <ClickButton variant="success" @click="notify('Success Action!')">Success Button</ClickButton>
-        <ClickButton variant="warning" @click="notify('Warning Action!')">Warning Button</ClickButton>
-        <ClickButton variant="cancel" @click="notify('Cancel Action!')">Cancel Button</ClickButton>
-        <ClickButton variant="disabled">Disabled Button</ClickButton>
-        <IconButton title="Settings Icon Button" @click="notify('Settings Clicked')">⚙️</IconButton>
-        <ToggleButton v-model="toggleState" label="Interactive Toggle" />
-      </div>
-    </BasePanel>
-
-    <TwoSplitTemplate>
-      <template #left>
-        <BasePanel title="2. Input Components">
-          <TextInput v-model="textValue" label="Text Input (.text-input)" placeholder="Enter name..." />
-          <NumberInput v-model="numberValue" label="Number Input (.number-input)" :min="1" :max="100" />
-          <DateInput v-model="dateValue" label="Date Input (.date-input)" />
-          <TextArea v-model="areaValue" label="Text Area (.text-area)" placeholder="Enter description..." />
-
-          <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
+    <div class="white-padding">
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <NotificationBanner variant="success" message="Vue 3 SPA component library successfully initialized with Vite and unplugin-vue-components autoloading!" />
+            <BasePanel title="1. Button Primitives & Interactive Hover/Active Filters">
+                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                    Hover over buttons for <strong>+15% brightness</strong> and click for <strong>-15% brightness</strong> filters.
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                    <ClickButton variant="primary" @click="notify('Primary Clicked!')">Primary Button</ClickButton>
+                    <ClickButton variant="secondary" @click="notify('Secondary Clicked!')">Secondary Button</ClickButton>
+                    <ClickButton variant="success" @click="notify('Success Action!')">Success Button</ClickButton>
+                    <ClickButton variant="warning" @click="notify('Warning Action!')">Warning Button</ClickButton>
+                    <ClickButton variant="cancel" @click="notify('Cancel Action!')">Cancel Button</ClickButton>
+                    <ClickButton variant="disabled">Disabled Button</ClickButton>
+                    <IconButton title="Settings Icon Button" @click="notify('Settings Clicked')">⚙️</IconButton>
+                    <ToggleButton v-model="toggleState" label="Interactive Toggle" />
+                </div>
+            </BasePanel>
+            <SlotTwoSplitTemplate>
+                <template #left>
+                    <BasePanel title="2. Input Components">
+                        <TextInput v-model="textValue" label="Text Input (.text-input)" placeholder="Enter name..." />
+                        <NumberInput v-model="numberValue" label="Number Input (.number-input)" :min="1" :max="100" />
+                        <DateInput v-model="dateValue" label="Date Input (.date-input)" />
+                        <TextArea v-model="areaValue" label="Text Area (.text-area)" placeholder="Enter description..." />
+                        <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
             <ToggleInput v-model="checkValue" label="Agree to terms" />
             <RadioButton v-model="radioValue" value="optionA" name="opts" label="Option A" />
             <RadioButton v-model="radioValue" value="optionB" name="opts" label="Option B" />
@@ -45,7 +43,7 @@
           </div>
         </BasePanel>
       </template>
-    </TwoSplitTemplate>
+    </SlotTwoSplitTemplate>
 
     <BasePanel title="4. Panels & Modal Triggers">
       <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
@@ -77,6 +75,7 @@
       @save="onSaveNote"
     />
   </div>
+</div>
 </template>
 
 <script setup>

@@ -32,6 +32,13 @@
         margin: var(--style-dist);
         margin-left: 0;
     }
+    .split-right {
+        width: calc(100% - 300px);
+        /*background-color: rgba(255,255,255,0.2);*/
+        border-radius: var(--radius-lg);
+        margin: var(--style-dist);
+        margin-left: 0;
+    }
 
 }
 </style>

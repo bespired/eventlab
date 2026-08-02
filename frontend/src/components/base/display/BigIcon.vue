@@ -17,10 +17,9 @@ const localImage = computed(() => { return `url(${assetsBaseUrl}svgicons/${props
 
 </script>
 
-
 <style>
   .alpha-mask {
-    line-height: .9;
+    line-height: 1;
     overflow: hidden;
 
     display: inline-block;
@@ -28,6 +27,5 @@ const localImage = computed(() => { return `url(${assetsBaseUrl}svgicons/${props
     mask-mode: alpha;
     mask-position: center;
     mask-repeat: no-repeat;
-    transform: translateY(-.2em);
   }
 </style>

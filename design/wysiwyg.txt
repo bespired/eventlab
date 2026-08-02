@@ -1,0 +1,30 @@
+// PAGINA A (Verzender)
+const kanaal = new BroadcastChannel('mijn_kanaal');
+kanaal.postMessage({ type: 'UPDATE', data: 'Nieuwe bestelling geplaatst!' });
+
+// PAGINA B (Ontvanger)
+const kanaal = new BroadcastChannel('mijn_kanaal');
+kanaal.onmessage = (event) => {
+    console.log('Ontvangen data:', event.data);
+};
+
+
+BroadcastChannel to use to send changes to preview window.
+And maybe even select elements on the preview.
+
+
+local storage can signal changes as well.
+This all needs to be same domain...
+For different domain websockets are needed.
+https://apinator.io/free-websocket-server/  ?
+
+// PAGINA A (Verzender)
+localStorage.setItem('laatste_actie', JSON.stringify({ tijd: Date.now(), tekst: 'Hallo!' }));
+
+// PAGINA B (Ontvanger)
+window.addEventListener('storage', (event) => {
+    if (event.key === 'laatste_actie') {
+        const data = JSON.parse(event.newValue);
+        console.log('Verandering opgemerkt:', data);
+    }
+});

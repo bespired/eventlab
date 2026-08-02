@@ -330,13 +330,21 @@ button:disabled,
 .notification-banner.variant-cancel { border-left-color: var(--color-cancel); }
 
 /* Layout Wireframe Templates */
-/*.two-split-template {
+.slot-two-split-template {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 }
 
-.three-split-template {
+.white-padding {
+  display: flex;
+  margin: var(--style-dist);
+  padding: var(--style-dist);
+  background-color: rgba(255,255,255,0.5);
+  border-radius: 12px;
+}
+
+/*.three-split-template {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   gap: 1.5rem;

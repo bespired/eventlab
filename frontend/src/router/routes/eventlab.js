@@ -9,13 +9,26 @@ export default [
     },
   },
   {
-    path: '/checkout',
-    name: 'checkout',
-    component: () => import('../../views/eventlab/CheckoutView.vue'),
+    path: '/auth/login',
+    name: 'login',
+    meta: { layout: 'TwoSplitTemplate' },
+    components: {
+      sideContent: () => import('../../views/eventlab/MenuView.vue'),
+      bodyContent: () => import('../../views/eventlab/LoginView.vue'),
+    },
   },
+  // {
+  //   path: '/checkout',
+  //   name: 'checkout',
+  //   component: () => import('../../views/eventlab/CheckoutView.vue'),
+  // },
   {
     path: '/design',
     name: 'design',
-    component: () => import('../../views/eventlab/DesignView.vue'),
+    meta: { layout: 'TwoSplitTemplate' },
+    components: {
+      sideContent: () => import('../../views/eventlab/MenuView.vue'),
+      bodyContent: () => import('../../views/eventlab/DesignView.vue'),
+    },
   },
 ]
