@@ -54,13 +54,14 @@
   const route = useRoute();
 
   const tenant = computed(() => {
-    return route.params.tenant || 'a0'
-  });
+    const localTenant = localStorage.getItem('tenant') || 'a0'
+    return route.params.tenant || localTenant
+  })
 
   const selectedRoute = (word) => {
-    const parts = route.path.split('/').filter(Boolean);
-    const tenantIndex = parts.indexOf(tenant.value);
-    const afterTenant = parts.slice(tenantIndex + 1);
-    return afterTenant.includes(word) ? 'selected' : '';
-  };
+    const parts = route.path.split('/').filter(Boolean)
+    const tenantIndex = parts.indexOf(tenant.value)
+    const afterTenant = parts.slice(tenantIndex + 1)
+    return afterTenant.includes(word) ? 'selected' : ''
+  }
 </script>
