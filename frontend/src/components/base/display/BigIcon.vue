@@ -11,7 +11,8 @@ const props = defineProps({
   disabled: { type: Boolean, default: false }
 })
 
-const assetsBaseUrl = import.meta.env.VITE_ASSETS_BASE_URL ?? 'http://localhost:3006/app/'
+const baseUrl = import.meta.env.VITE_ASSETS_BASE_URL ?? import.meta.env.BASE_URL ?? '/app/'
+const assetsBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
 
 const localImage = computed(() => { return `url(${assetsBaseUrl}svgicons/${props.name}.svg)`})
 
