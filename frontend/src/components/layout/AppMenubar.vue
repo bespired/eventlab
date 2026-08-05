@@ -2,7 +2,7 @@
     <aside class="side-menu">
         <ul>
             <li>
-                <router-link to="/" class="">
+                <router-link to="/" :class="selectedRoute('/')">
                     <div class="menu-popup">Eventlab</div>
                     <big-icon name="menu-eventlab" />
                 </router-link>
@@ -62,6 +62,7 @@
     const parts = route.path.split('/').filter(Boolean)
     const tenantIndex = parts.indexOf(tenant.value)
     const afterTenant = parts.slice(tenantIndex + 1)
+    if (route.path === word) return 'selected'
     return afterTenant.includes(word) ? 'selected' : ''
   }
 </script>

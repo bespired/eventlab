@@ -11,11 +11,8 @@ export default [
   {
     path: '/auth/login',
     name: 'login',
-    meta: { layout: 'TwoSplitTemplate' },
-    components: {
-      sideContent: () => import('../../views/eventlab/MenuView.vue'),
-      bodyContent: () => import('../../views/eventlab/LoginView.vue'),
-    },
+    meta: { layout: 'ModalTemplate' },
+    component: () => import('../../views/eventlab/LoginView.vue'),
   },
   // {
   //   path: '/checkout',

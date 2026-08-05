@@ -1,54 +1,44 @@
 <template>
-  <div class="body-three-split">
-    <div class="body-header">
-        <div class="left-items">
-          [item 1] [item 2] [item 3]
-        </div>
-        <div class="right-items">
-          [ADD] [info] [msg] [avatar]
-        </div>
+  <div class="login-screen">
+    <div class="left-part">
     </div>
-    <div class="body-filter">
-      <div class="left-items">
-        [searchbar]
-      </div>
-      <div class="right-items">
-        [filters]
-      </div>
-    </div>
-    <div class="body-content">
-      Things in the body
+    <div class="right-part">
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
+const baseUrl = import.meta.env.VITE_ASSETS_BASE_URL ?? import.meta.env.BASE_URL ?? '/app/'
+const assetsBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+const localImage = computed(() => { return `url(${assetsBaseUrl}images/hero-pyramides.webp)`})
+
 </script>
 
 <style>
-  .body-three-split {
-    display: flex;
-    flex-direction: column;
-    padding: var(--style-dist);
-    gap: 8px;
-
-    .body-filter,
-    .body-header {
+  .login-screen {
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      border-radius: var(--radius-md);
-      padding: 4px 10px;
-      min-height: 40px;
-      /*background: rgba(255,255,255, 0.4);*/
+      margin: auto;
+      width: 60%;
+      min-height: 60vh;
+      border-radius: 20px;
+      border: 1px solid;
+
+    .left-part{
+      width: 30%;
+      backdrop-filter: brightness(1.5);
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
     }
-    .body-content {
-      /*background: rgba(255,255,255, 0.4);*/
-      border-radius: var(--radius-md);
-      min-width: 100%;
-      min-height: calc(100dvh - 176px);
-      padding: 4px 10px;
+    .right-part{
+      width: 70%;
+      background-image: v-bind(localImage);
+      background-position: center 37%;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      /*background-size: 99%;*/
+      /* background-size: cover; */
     }
   }
-
 </style>
