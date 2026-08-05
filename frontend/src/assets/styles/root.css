@@ -1,7 +1,7 @@
 :root {
   /* Required Color System */
   --color-primary: #3b82f6;
-  --color-secondary: #64748b;
+  --color-secondary: #1c3464;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-cancel: #ef4444;
@@ -13,11 +13,20 @@
   /* Theme Tokens */
   --bg-img: url(/images/blur-pyramides.webp);
   --bg-app: #0f172a;
+/*
   --bg-surface: #1e293b;
   --bg-surface-elevated: #334155;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border-color: #f3f3f3;
+*/
+  --bg-surface: #f5f1e6;
+  --bg-surface-elevated: #f3f1f5;
+  --text-main: #181a1c;
+  --text-muted: #242328;
+  --bg-border-color: #232323;
+  --border-color: #f3f3f3;
+
 
   /* Layout & Radii Tokens */
   --radius-sm: 4px;

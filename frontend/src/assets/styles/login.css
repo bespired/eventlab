@@ -1,0 +1,78 @@
+  .login-screen {
+      display: flex;
+      margin: auto;
+      width: 70%;
+      min-height: 60vh;
+      border-radius: 20px;
+      border: 1px solid var(--bg-border-color);
+
+      .input-label {
+          color: var(--color-secondary);
+          transform: translateX(4px);
+      }
+
+      .text-input:focus,
+      .number-input:focus,
+      .date-input:focus,
+      .text-area:focus {
+          border-color: var(--bg-border-color);
+      }
+
+      .left-part {
+          width: 35%;
+          backdrop-filter: brightness(1.5);
+          border-top-left-radius: 20px;
+          border-bottom-left-radius: 20px;
+          overflow: hidden;
+      }
+
+      .right-part {
+          width: 65%;
+          /*background-image: v-bind(localImage);*/
+          background-position: center 37%;
+          border-top-right-radius: 20px;
+          border-bottom-right-radius: 20px;
+      }
+
+      .logo-area {
+          padding: 20px 20px 0 20px;
+          color: var(--color-secondary);
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-weight: 900;
+      }
+
+      .credientials {
+          padding: 20px 20px 0 20px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+      }
+  }
+
+  @media only screen and (max-width: 1100px) {
+    .login-screen {
+          .left-part, .right-part {  width: 50%; }
+    }
+  }
+
+  @media only screen and (max-width: 800px) {
+      .login-screen {
+          .left-part {
+              width: 100%;
+              border-top-right-radius: 20px;
+              border-bottom-right-radius: 20px;
+          }
+
+        .right-part {
+            display: none;
+        }
+    }
+  @media only screen and (max-width: 430px) {
+      .login-screen {
+          padding: 0;
+          width: 95%;
+        }
+    }
+}
